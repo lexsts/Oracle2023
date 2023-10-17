@@ -1,0 +1,8 @@
+#Criação do DBLINK na instância de DEV/UAT (logado como system)
+create database link PRD_MIDS connect to system identified by "Oracle#01" using 'MIDS_PRD';
+
+#Importação do schema via dblink
+impdp system@MIDSD directory=BACKUP logfile=import_ZAP_SPED.log network_link=PRD_MIDS.BR.DB.COM schemas=ZAP_SPED
+
+#Deleção do DBLINK anteriormente criado
+drop database link PRD_MIDS;

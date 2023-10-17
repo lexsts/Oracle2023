@@ -1,0 +1,52 @@
+##########################################################################################
+http://neeraj-dba.blogspot.com/2011/10/open-standby-in-read-write-mode-when.html
+http://oracleinstance.blogspot.com/2011/09/physical-standby-database-for-readwrite.html
+##########################################################################################
+--Executar no Primário (saoeqdbp69n1)
+1.	Reative a replicação do dataguard no primário:
+D:>set ORACLE_SID=’NODE_NAME_PRIMARY’
+D:>DGMGRL
+DGMGRL> CONNECT SYS
+CONNECT SYS
+DGMGRL> show configuration verbose;
+DGMGRL> ENABLE DATABASE ‘NODE_NAME_SECUNDARY’;
+
+
+1.	Desative a replicação do dataguard no primário:
+D:>set ORACLE_SID=’NODE_NAME_PRIMARY’
+D:>DGMGRL
+DGMGRL> CONNECT SYS
+CONNECT SYS
+DGMGRL> show configuration verbose;
+DGMGRL> DISABLE DATABASE ‘NODE_NAME_SECUNDARY’;
+
+
+
+2.	Verifique a configuração com os comandos:
+DGMGRL> SHOW CONFIGURATION;
+DGMGRL> SHOW CONFIGURATION VERBOSE;
+DGMGRL> SHOW DATABASE VERBOSE ‘NODE_SECUNDARY’;
+
+##########################################################################################
+--Executar no Secundário modo read-only (saoeqdbb0070)
+To open a standby database for read-only access when it is currently shut down:
+
+Start the Oracle instance for the standby database without mounting it:
+SQL> STARTUP NOMOUNT;
+Mount the standby database:
+SQL> ALTER DATABASE MOUNT STANDBY DATABASE;
+Open the database for read-only access:
+SQL> ALTER DATABASE OPEN READ ONLY;
+
+
+##########################################################################################
+--Executar no Secundário modo normal (saoeqdbb0070)
+Start the database:
+SQL> STARTUP NOMOUNT;
+
+Mount the standby database:
+SQL> ALTER DATABASE MOUNT STANDBY DATABASE;
+
+Start the managed recovery operation:
+SQL> ALTER DATABASE RECOVER MANAGED STANDBY DATABASE 
+  2> DISCONNECT FROM SESSION;

@@ -1,0 +1,2 @@
+Exclusão de tabela do export
+delete from bdservico.expdp_tab_bdh where OWNER_TABLE_NAME='CETIP.DERIVATIVO_COE,' 

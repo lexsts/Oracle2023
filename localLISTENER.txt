@@ -1,0 +1,103 @@
+oratrd10201p
+oratrd10202p
+RPFFESPA
+
+
+1) Aumentar o limite de processos: 
+
+ alter system set processes = 6000 scope = SPFILE sid = '*';
+
+
+2) Baixar as duas instancias. 
+
+ srvctl stop database -d RPFFESPA -f 
+ 
+ 
+3) Reiniciar o CRS nas duas maquinas 
+
+export ORACLE_HOME=/opt/grid/product/12.2.0/grid_1
+/opt/grid/product/12.2.0/grid_1/bin/crsctl stop crs 
+
+
+/opt/grid/product/12.2.0/grid_1/bin/crsctl start crs -wait
+
+
+4) Conferir SERVICE_NAME  
+
+SQL> show parameter service
+
+NAME                                 TYPE        VALUE
+------------------------------------ ----------- ------------------------------
+service_names                        string      RPFFESPA.WORLD, GPSTRDP.WORLD,
+                                                  MDP1P.WORLD, MDPP.WORLD, SPRP
+                                                 .WORLD, U2DP.WORLD
+SQL>
+
+Deve ficar:
+
+
+SQL> show parameter service
+
+NAME                                 TYPE        VALUE
+------------------------------------ ----------- ------------------------------
+service_names                        string      RPFFESPA.WORLD
+SQL>
+
+
+
+5) Conferir local_listener
+
+maquina 01:
+
+SQL> show parameter local
+
+NAME                                 TYPE        VALUE
+------------------------------------ ----------- ------------------------------
+local_listener                       string      (ADDRESS=(PROTOCOL=TCP)(HOST=1
+                                                 0.98.8.22)(PORT=1521))
+parallel_force_local                 boolean     FALSE
+SQL>
+
+
+maquina 02:
+
+
+SQL> show parameter local
+
+NAME                                 TYPE        VALUE
+------------------------------------ ----------- ------------------------------
+local_listener                       string      (ADDRESS=(PROTOCOL=TCP)(HOST=1
+                                                 0.98.8.23)(PORT=1521))
+parallel_force_local                 boolean     FALSE
+SQL>
+
+
+Se estiver errado:
+
+
+alter system set local_listener = '(ADDRESS=(PROTOCOL=TCP)(HOST=10.98.8.22)(PORT=1521))' SCOPE=BOTH SID='RPFFESPA1';
+alter system set local_listener = '(ADDRESS=(PROTOCOL=TCP)(HOST=10.98.8.23)(PORT=1521))' SCOPE=BOTH SID='RPFFESPA2';
+
+alter system register; 
+
+
+6) Validar conexão 
+
+
+sqlplus gestaoambienteoracle@GPSTRDP
+
+
+String já está no tnsnames.ora:
+
+GPSTRDP =
+(DESCRIPTION =
+  (ADDRESS = (PROTOCOL = TCP)(HOST = oratrd10202p.intraservice.corp)(PORT = 1521))
+  (CONNECT_DATA =
+    (SERVER = DEDICATED)
+    (SERVICE_NAME = GPSTRDP.WORLD)
+  )
+)
+
+
+
+

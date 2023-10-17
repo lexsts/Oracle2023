@@ -1,0 +1,23 @@
+SQL> connect / as sysdba 
+ SQL> exec dbms_stats.gather_dictionary_stats; 
+ SQL> exec dbms_stats.lock_table_stats (null,'X$KCCLH'); 
+ SQL> exec dbms_stats.gather_fixed_objects_stats; 
+ 
+ 
+ -----NO PARFILE
+ trace=480300 
+ metrics=Y 
+ 
+ 
+ ------------TRACE
+ 
+ E.g.: /oracle/diag/rdbms/ORCL/ORCL/trace 
+
+ Master Process trace file: <SID>_dm<number>_<process_id>.trc 
+ Worker Process trace file: <SID>_dw<number>_<process_id>.trc 
+
+ - Create standard tkprof output files for Data Pump Master and Worker SQL traces: 
+
+ % cd /oracle/admin/ORCL/BDUMP 
+ % tkprof orcl_dm00_17292.trc tkprof_orcl_dm00_17292.out waits=y sort=exeela 
+ % tkprof orcl_dw01_17294.trc tkprof_orcl_dw01_17294.out waits=y sort=exeela 

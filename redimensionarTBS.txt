@@ -1,0 +1,78 @@
+/oracle/BWP/sapdata2
+
+
+--Shrink nas tabelas
+alter table mytable enable row movement;
+alter table mytable shrink space;
+Alter table mytable shrink space cascade;
+
+
+--
+SELECT FILE_NAME, TABLESPACE_NAME,BYTES/1024/1024 MB FROM DBA_DATA_FILES WHERE FILE_NAME LIKE '/oracle/BWP/sapdata2%'
+
+FILE_NAME                                TABLESPACE_NAME                                  MB
+---------------------------------------- ---------------------------------------- ----------
+/oracle/BWP/sapdata2/sr3_1/sr3.data1     PSAPSR3                                       32767
+/oracle/BWP/sapdata2/sr3_2/sr3.data2     PSAPSR3                                       17480
+/oracle/BWP/sapdata2/sr3_3/sr3.data3     PSAPSR3                                       17480
+
+
+--Espaço fisicamente alocado
+SQL> SELECT SUM(BYTES)/1024/1024 MB FROM DBA_DATA_FILES WHERE TABLESPACE_NAME='PSAPSR3';
+
+        MB
+----------
+     67727
+
+
+--Espaço logicamente alocado
+SELECT SUM(BYTES)/1024/1024 MB FROM DBA_SEGMENTS WHERE TABLESPACE_NAME='PSAPSR3';
+
+        MB
+----------
+50260.0625
+
+
+
+--Utilização
+TABLESPACE_NAME                EXTENT_MAN TAM_MB      USADO_MB    LIVRE_MB    OCUP_%
+------------------------------ ---------- ----------- ----------- ----------- ------- ----------------------------------------
+PSAPSR3                        LOCAL         67727.00    50263.06    17463.94   74.21 __________
+PSAPSR3730                     LOCAL         31230.00    20886.69    10343.31   66.88 _____________
+PSAPSR3USR                     LOCAL          2068.00        2.00     2066.00    0.10 ________________________________________
+PSAPTEMP                       LOCAL          1750.00     1732.00       18.00   98.97
+PSAPUNDO                       LOCAL          2100.00       53.06     2046.94    2.53 _______________________________________
+SYSAUX                         LOCAL          1000.00      915.75       84.25   91.58 ___
+SYSTEM                         LOCAL           780.13      728.75       51.38   93.41 ___
+
+
+
+
+SELECT OWNER,SEGMENT_NAME,SEGMENT_TYPE,TABLESPACE_NAME FROM DBA_SEGMENTS WHERE TABLESPACE_NAME='PSAPSR3';
+
+
+ALTER DATABASE DATAFILE '/oracle/BWP/sapdata2/sr3_1/sr3.data1' RESIZE 32255M;
+ALTER DATABASE DATAFILE '/oracle/BWP/sapdata2/sr3_2/sr3.data2' RESIZE 16968M;
+ALTER DATABASE DATAFILE '/oracle/BWP/sapdata2/sr3_1/sr3.data1' RESIZE 32255M;
+
+
+--Reclaim space
+alter tablespace xxx coalesce 
+
+alter table xxx deallocate unused space;
+alter index xxx deallocate unused space;
+
+
+--Redimensionar o datafile
+select 'alter database datafile'  || file_name ||  'resize' || ceil( (nvl(hwm,1)*8192*1.2)/1024/1024 )  || 'm;'
+from dba_data_files a, (select file_id, max(block_id+blocks-1) hwm from dba_extents group by file_id) b
+where a.file_id = b.file_id
+and ceil( (nvl(hwm,1)*8192*1.2)/1024/1024 ) < ceil( blocks*8192/1024/1024) 
+and ceil( (nvl(hwm,1)*8192*1.2)/1024/1024 ) > 100
+and a.tablespace_name='PSAPSR3';
+
+
+
+alter database datafile/oracle/BWP/sapdata3/sr3730_2/sr3730.data2 resize 9296m;
+alter database datafile/oracle/BWP/sapdata1/undo_1/undo.data1 resize 222m;
+alter database datafile/oracle/BWP/sapdata3/sr3730_3/sr3730.data3 resize 3300m;

@@ -1,0 +1,16 @@
+Segue o que foi feito para adicionar o datafile também no DR.
+
+
+No banco primário
+
+ alter system set standby_file_management=auto;
+alter system switch logfile;
+
+
+No standby
+
+select name from v$datafile;
+
+o datafile vai estar com o nome parecido com esse /u01/app/oracle/product/11.2.0.3/dbs/UNNAMED00020 , dê o  comando abaixo.
+
+alter database create datafile '/u01/app/oracle/product/11.2.0.3/dbs/UNNAMED00020' as '/u02/oradata/bip/users_01.dbf';

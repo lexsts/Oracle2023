@@ -1,0 +1,16 @@
+ --Statistics Full
+ SELECT A.*, 
+         'EXEC DBMS_STATS.GATHER_TABLE_STATS(ownname=>'''| | A.OWNER || ''', tabname=>''' || A.TABLE_NAME || ''', estimate_percent=>100, cascade=>true);'
+
+  FROM DBA_TABLES A 
+ WHERE A.TABLE_NAME...
+
+--SCHEMA
+   --EXEC dbms_stats.gather_schema_stats('PR01OMEO', cascade=>TRUE,degree => 16);
+  -- EXEC dbms_stats.gather_schema_stats('PR01OMMO', cascade=>TRUE,degree => 16);
+  -- EXEC dbms_stats.gather_schema_stats('PR01OMRO', cascade=>TRUE,degree => 16);
+
+--Rebuild Indexes
+SELECT    'ALTER INDEX ' || A.TABLE_OWNER || '.' || A.INDEX_NAME || ' REBUILD ONLINE PARALLEL NOLOGGING;'
+  FROM DBA_INDEXES A
+ WHERE A.owner IN ('PR01OMEO');

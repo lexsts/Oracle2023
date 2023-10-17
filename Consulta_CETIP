@@ -1,0 +1,27 @@
+--Faltam: 220783 registros na tabela CETIP.OPERACAO.
+--LIBRA_CIPEXT: A MESMA CONSULTA PARA VER O STATUS DO EXPURGO
+
+select B.SQL_ID,B.CLIENT_INFO,
+       substr(a.inst_id,1,9) pid,
+       substr(a.spid,1,9) pid,
+       substr(b.sid,1,5) sid,
+       substr(b.serial#,1,5) ser#,
+       substr(b.machine,1,6) box,
+       substr(b.username,1,10) username,
+--       b.server,
+       substr(b.osuser,1,8) os_user,
+       substr(b.program,1,30) program,
+       'alter system kill session ('||b.sid||','||b.serial#||') immediate;'
+from gv$session b, gv$process a
+where
+b.paddr = a.addr
+and type='USER' and b.username = 'OPS$ORACLE'
+order by spid;
+
+
+
+
+[02:50] Marcos Manhaes
+    11/11/2020 02:18:45 - DEB_extracaoArqDCustodiaInstDep.sh - Fim do processo [5]  (tempo: 7156    seg. ~ 1h59m [  hini: 00:19:24  hfim: 02:18:43  ]) , exit=0 .
+​[02:52] Marcos Manhaes
+    achei essa sub-rotina que executa dentro do job PCTP-DEB-GERAARQSRELSCUSTODIA2B

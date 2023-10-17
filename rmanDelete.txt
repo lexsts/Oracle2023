@@ -1,0 +1,5 @@
+
+run {
+delete noprompt force archivelog all completed before 'sysdate';
+}
+

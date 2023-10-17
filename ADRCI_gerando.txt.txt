@@ -1,0 +1,41 @@
+D:\oracle\product\11.2.0.3.0\BIN>ADRCI
+
+ADRCI: Release 11.2.0.3.0 - Production on Ter Jun 19 15:33:48 2012
+
+Copyright (c) 1982, 2011, Oracle and/or its affiliates.  All rights reserved.
+
+ADR base = "E:\oracle\product\11.2.0.3.0\admin\SCT\diag"
+adrci> cd E:\oracle\product\11.2.0.3.0\admin\MIDS\diag
+ADR Base is set to E:\oracle\product\11.2.0.3.0\admin\MIDS\diag
+adrci> show home
+ADR Homes:
+diag\rdbms\mids\mids
+adrci> show problem
+
+ADR Home = E:\oracle\product\11.2.0.3.0\admin\MIDS\diag\diag\rdbms\mids\mids:
+*************************************************************************
+PROBLEM_ID           PROBLEM_KEY                                                 LAST_INCIDENT        LASTINC_TIME
+
+-------------------- ----------------------------------------------------------- -------------------- -----------------------------------
+--
+1                    ORA 600 [HO define: Long fetch]                             65545                2012-04-23 20:24:35.349000 -03:00
+
+2                    ORA 7445 [ldxpv()+222]                                      205514               2012-06-12 11:11:45.070000 -03:00
+
+3                    ORA 7445 [ldxpv()+233]                                      205571               2012-06-12 11:14:43.591000 -03:00
+
+4                    ORA 600 [526]                                               205530               2012-06-13 01:48:02.075000 -03:00
+
+5                    ORA 7445 [kglSessionHashRemove()+83]                        205450               2012-06-13 01:48:13.262000 -03:00
+
+6                    ORA 600 [kghstack_underflow_internal_3]                     213535               2012-06-14 10:09:31.202000 -03:00
+
+6 rows fetched
+
+adrci> ips pack problem 4 in C:\temp
+Generated package 3 in file C:\temp\ORA600526_20120619155621_COM_1.zip, mode complete
+adrci>
+adrci> ips pack problem 5 in C:\temp
+Generated package 4 in file C:\temp\ORA7445kg_20120619155847_COM_1.zip, mode complete
+
+

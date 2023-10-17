@@ -1,0 +1,15 @@
+C:\WINNT\Profiles\erbetat-a>set ORACLE_SID=MIDS
+
+C:\WINNT\Profiles\erbetat-a>rman
+
+Recovery Manager: Release 9.2.0.8.0 - Production
+
+Copyright (c) 1995, 2002, Oracle Corporation.  All rights reserved.
+
+RMAN> set DBID=2156946505  (o DBID vc pega no banco após executar "select * from v$database")
+
+executando comando: SET DBID
+
+RMAN> connect target sys/"<senha>"@MIDS
+
+RMAN>crosscheck archivelog all;

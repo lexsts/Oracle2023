@@ -1,0 +1,3 @@
+cd $ORACLE_BASE/diag
+
+cd /opt/grid/product/11.2.0/grid_1/log/<hostname>

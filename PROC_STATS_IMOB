@@ -1,0 +1,71 @@
+CREATE OR REPLACE PROCEDURE SYS.PROC_STATISTICS_IMOB IS
+BEGIN
+DECLARE
+    v_planhash_01 varchar2(100);
+	v_planhash_02 varchar2(100);
+	v_planhash_03 varchar2(100);
+	v_planhash_04 varchar2(100);
+	v_sqlid_01  varchar2(100);
+    v_sqlid_02  varchar2(100);
+    v_sqlid_03  varchar2(100);
+    v_sqlid_04  varchar2(100);
+	v_status  varchar2(100);
+    BEGIN 
+								--SQL_IDs: planos que seram removidos
+								v_sqlid_01 := '8vmvsgq353bqd';
+								v_sqlid_02 := '6bs55mjd1dywr';
+								v_sqlid_03 := '7xcmbcgxg5zp1';
+								v_sqlid_04 := '98s963t0qmh2q';
+								--SQL_IDs: carrega o hash na variavel
+								select count(1) into v_planhash_01 from gv$sqlarea where sql_id = v_sqlid_01;
+								IF v_planhash_01=1 THEN select address||','||hash_value into v_planhash_01 from gv$sqlarea where sql_id = v_sqlid_01; END IF;
+								select count(1) into v_planhash_02 from gv$sqlarea where sql_id = v_sqlid_02;
+								IF v_planhash_02=1 THEN select address||','||hash_value into v_planhash_02 from gv$sqlarea where sql_id = v_sqlid_02; END IF;
+								select count(1) into v_planhash_03 from gv$sqlarea where sql_id = v_sqlid_03;
+								IF v_planhash_03=1 THEN select address||','||hash_value into v_planhash_03 from gv$sqlarea where sql_id = v_sqlid_03; END IF;
+								select count(1) into v_planhash_04 from gv$sqlarea where sql_id = v_sqlid_04;
+								--SQL_IDs: exclui o hash do cache
+								IF v_planhash_04=1 THEN select address||','||hash_value into v_planhash_04 from gv$sqlarea where sql_id = v_sqlid_04; END IF;
+								IF v_planhash_01 !='0' THEN dbms_shared_pool.purge(''||v_planhash_01||'','C',1); END IF;                                
+								IF v_planhash_02 !='0' THEN dbms_shared_pool.purge(''||v_planhash_02||'','C',1); END IF;                                
+								IF v_planhash_03 !='0' THEN dbms_shared_pool.purge(''||v_planhash_03||'','C',1); END IF;                                
+								IF v_planhash_04 !='0' THEN dbms_shared_pool.purge(''||v_planhash_04||'','C',1); END IF;
+								--Atualiza as estatisticas das tabelas/indices
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'IE41_INSTRUMENTO_FINANCEIRO', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'IF_V_POSIC_CUST_MALOTE_I', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'IF_V_POSICAO_SWAP_I', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'IF_NUM_IF_COD_IF_TIPO_IF', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'IF_1_TIPO_IF_FK_I', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'IF_1_PK', estimate_percent => DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'OPER_OP_TP_OB_SERV_COD_ORIG_I', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'OPER_ST_OPERAC_FK_I', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'ESP_COMIT_COMITENTE_FK_I', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'ESP_COMIT_PK', estimate_percent => DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'ESPECIF_SIT_ESPEC_FK_I', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'IF_V_CONTRATOS_TERMO', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'IF_1_SIST_FK_I', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'JU_FLUT_IND_VAL_FK_I', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'JUR_FLUT_V_POSICAO_SWAP_I', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'JU_FLUT_PK', estimate_percent => DBMS_STATS.AUTO_SAMPLE_SIZE);
+								
+								EXCEPTION
+								WHEN NO_DATA_FOUND THEN
+								raise_application_error (-20001,'Nao há plano no cache para um os SQL_IDs.');
+								raise_application_error (-20002,'Ocorreu um erro. Execute o bloco manualmente para identifica-lo.');
+    END;
+END;    
+/    
+
+
+
+BEGIN
+ DBMS_SCHEDULER.CREATE_JOB (
+   job_name            =>  'STATISTICS_IMOB', 
+   job_type            =>  'STORED_PROCEDURE',
+   job_action          =>  'SYS.PROC_STATISTICS_CDB_IMOB_AGRO',
+   start_date          =>  '22/07/21 04:00:00,000000000 -03:00',
+   repeat_interval     =>  'FREQ=DAILY;BYHOUR=22;BYDAY=MON,TUE,WED,THU,FRI',
+   enabled              =>  TRUE,
+   comments            =>  'Job de estatísticas - Diário as 22:00hrs - Jobs: CDB, IMOB, AGRO');
+END;
+/

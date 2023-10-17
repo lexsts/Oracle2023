@@ -1,0 +1,34 @@
+1)  Faça backup de sua Oracle Home 
+ 
+     [oracle@srv1] $ tar -czf backup_OH_18072010.tar $ORACLE_HOME  
+ 
+2) Verifique bases que estão rodando 
+ 
+[oracle@srv1] $ ps -ef | grep smon | grep -v grep | awk -F”_” ‘{print $3}’
+ 
+3) Baixe uma a uma
+ 
+[oracle@srv1] $ export ORACLE_SID=ORCL
+ [oracle@srv1] $ sqlplus “/as sysdba” 
+ SQL> shutdown immediate;
+ 
+4) Verifique a saida do comando umask (tem que ser 0022)
+ 
+[oracle@srv1] $ umask
+ 
+5) Agora segue o relink da Oracle Home 
+ 
+[oracle@srv1] $ script /home/oracle/relink_srv1_18072010.log  #Gerar log
+ [oracle@srv1] $ cd $ORACLE_HOME
+ [oracle@srv1] $ $ORACLE_HOME/bin/relink all;
+ [oracle@srv1] $ exit
+ 
+6) Procurando erros no Log do relink
+ 
+[oracle@srv1] $ grep -i “Code 1? /home/oracle/relink_srv1_18072010.log
+ [oracle@srv1] $ grep -i “Fatal” /home/oracle/relink_srv1_18072010.log
+ [oracle@srv1] $ grep -i “Error” /home/oracle/relink_srv1_18072010.log
+ 
+Caso os comandos grep acima não retorne nada, o relink está pronto e você já pode subir a(s) base(s) de dados novamente. Caso encontre algum erro sugiro dar uma consultada no Metalink e se não tiver nenhum workaround para solucionar, abra uma SR.
+ 
+Obs.: No caso de RAC a CRS_HOME não necessita de relink. 

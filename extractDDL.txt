@@ -1,0 +1,17 @@
+set long 100000
+set head off
+set echo off
+set pagesize 0
+set verify off
+set feedback off
+--spool schema.out
+
+SELECT DBMS_METADATA.GET_DDL(REPLACE(object_type, ' ', '_'), object_name, owner)
+FROM all_OBJECTS
+WHERE (OWNER = 'PR01NBCO')
+and object_type not like '%PARTITION'
+and object_type not like '%BODY'
+--and object_type = 'LOB'
+order by object_type, object_name;
+
+spool off

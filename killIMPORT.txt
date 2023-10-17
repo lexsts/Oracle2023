@@ -1,0 +1,30 @@
+
+--VIA SQLPLUS
+SET serveroutput on
+SET lines 100
+DECLARE
+   h1 NUMBER;
+BEGIN
+  -- Format: DBMS_DATAPUMP.ATTACH('[job_name]','[owner_name]');
+   h1 := DBMS_DATAPUMP.ATTACH('SYS_IMPORT_SCHEMA_1','SYSTEM');
+   DBMS_DATAPUMP.STOP_JOB (h1,1,0);
+END;
+/
+
+
+
+--VIA IMPDP
+******************************************
+
+step 1:  take the job_name from below views
+select * from USER_DATAPUMP_JOBS;
+select * from DBA_DATAPUMP_SESSIONS;
+
+step 2: try to attach to that job_name which you find out in step1.
+
+oracle@aa: /u02/backups # imp/***** attach=test_DUMP11(job_name)
+
+step 3:  stop job immediate
+
+impdp> STOP_JOB=IMMEDIATE
+impdp>kill_job

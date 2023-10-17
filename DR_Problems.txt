@@ -1,0 +1,26 @@
+--Habilitar o serviço da instancia
+srvctl enable database -db RPICXBRB
+
+--Configurar o remore_listener
+DR: ALTER SYSTEM SET remote_listener='orapos104p-scan.intraservice.corp:1521' SCOPE=MEMORY SID='*';
+PRD: ALTER SYSTEM SET remote_listener='orapos104p-scan.intraservice.corp:1521' SCOPE=MEMORY SID='*';
+
+--Adicionar serviço
+srvctl add service -d RPICXBRB -s icxp -r RPICXBRB1 -a RPICXBRB2
+srvctl start service -d RPICXBRB -s ICXP
+
+
+
+
+/etc/scripts/device_rescan.sh > /home/oracle/dr/log/device_rescan_exec.log 2>&1 
+cat /home/oracle/dr/log/device_rescan_exec.log  
+
+
+ksh -x /home/oracle/dr/start_cluster > /home/oracle/dr/log/start_cluster_exec.log 2>&1 
+
+
+
+ksh -x /home/oracle/dr/post_non_puma > /home/oracle/dr/log/post_non_puma_exec.log 2>&1 
+
+
+ls -lrt /home/oracle/dr/log/post_non_puma* 

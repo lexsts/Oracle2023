@@ -1,0 +1,103 @@
+CREATE OR REPLACE PROCEDURE SYS.PROC_STATISTICS_CDB_IMOB_AGRO IS
+BEGIN
+
+--Remove o plano de execução do dia anterior na instrução IN abaixo:
+Declare 
+Cursor Cur_SQLIDs Is
+      select address||','||hash_value as HASH from gv$sqlarea where sql_id IN ('6bs55mjd1dywr','8vmvsgq353bqd','6bs55mjd1dywr','7xcmbcgxg5zp1','98s963t0qmh2q','6cfmw3wbxw2wn','gjk55g24954ts','7r0092wz0kh6u','4z5ru8c5uxxfb','3dm2vbrk6wrws','2y12wa43pjnpb');
+      SQLIDs Cur_SQLIDs%ROWTYPE;
+Begin
+    OPEN Cur_SQLIDs;   
+    LOOP
+        FETCH Cur_SQLIDs INTO SQLIDs;
+        dbms_shared_pool.purge(''||SQLIDs.HASH||'','C',1);
+        EXIT WHEN Cur_SQLIDs%NOTFOUND;        
+    END LOOP;    
+    CLOSE Cur_SQLIDs;
+End;
+
+Declare 
+Cursor Cur_SQLIDs2 Is
+      select address||','||hash_value as HASH from gv$sqlarea where sql_id IN ('4ftj7bzc1jfdk','a4nkt10sc5qx8','fmayrny92gpam','bpkj0q8hc5b7x','6takcy6antp3a','39w8b9zfd23bf','c91mzq33jyymc','20knyyvgjrrj5','3zdy9xk9rva86','7r4nj7pj15hsd','45836jnbh651d');
+      SQLIDs2 Cur_SQLIDs2%ROWTYPE;
+Begin
+    OPEN Cur_SQLIDs2;   
+    LOOP
+        FETCH Cur_SQLIDs2 INTO SQLIDs2;
+        dbms_shared_pool.purge(''||SQLIDs2.HASH||'','C',1);
+        EXIT WHEN Cur_SQLIDs2%NOTFOUND;        
+    END LOOP;    
+    CLOSE Cur_SQLIDs2;
+End;
+
+
+								--Atualiza as estatisticas das tabelas/indices
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'IE41_INSTRUMENTO_FINANCEIRO', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'IF_V_POSIC_CUST_MALOTE_I', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'IF_V_POSICAO_SWAP_I', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'IF_NUM_IF_COD_IF_TIPO_IF', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'IF_1_TIPO_IF_FK_I', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'IF_1_PK', estimate_percent => DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'OPER_OP_TP_OB_SERV_COD_ORIG_I', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'OPER_ST_OPERAC_FK_I', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'ESP_COMIT_COMITENTE_FK_I', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'ESP_COMIT_PK', estimate_percent => DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'ESPECIF_SIT_ESPEC_FK_I', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'IF_V_CONTRATOS_TERMO', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'JU_FLUT_IND_VAL_FK_I', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'JUR_FLUT_V_POSICAO_SWAP_I', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'JU_FLUT_PK', estimate_percent => DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'OPER_CONS_NOME_APLIC_I', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'OPER_SITUAC_MODALID_I', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'OPER_F_TESTA_MEU_NUM_P2_I', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'OPER_F_TESTA_MEU_NUM_P1_I', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'OPER_T_OP_OB_SE_FK_I', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'OPER_CONTA_PART_FK_I', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'HIST_CART_CON_PARTIC_PK', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_table_stats(ownname => 'CETIP', tabname =>'T_TMP_JUROS_FLUTUANTE_T21', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE, method_opt => 'FOR ALL COLUMNS SIZE          AUTO');
+								dbms_stats.gather_table_stats(ownname => 'CETIP', tabname =>'T_TMP_ATUALIZACAO_POS_T21', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE, method_opt => 'FOR ALL COLUMNS SIZE            AUTO');
+								dbms_stats.gather_table_stats(ownname => 'CETIP', tabname =>'T_TMP_JUROS_FIXO_T21', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE, method_opt => 'FOR ALL COLUMNS SIZE            AUTO');
+								dbms_stats.gather_table_stats(ownname => 'CETIP', tabname =>'T_TMP_AMORTIZACAO_T21', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE, method_opt => 'FOR ALL COLUMNS SIZE            AUTO');
+								dbms_stats.gather_table_stats(ownname => 'CETIP', tabname =>'T_TMP_SPREAD_T21', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE, method_opt => 'FOR ALL COLUMNS SIZE            AUTO');
+								dbms_stats.gather_table_stats(ownname => 'CETIP', tabname =>'T_TMP_ATUALIZACAO_PRE_T21', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE, method_opt => 'FOR ALL COLUMNS SIZE            AUTO');
+								dbms_stats.gather_table_stats(ownname => 'CETIP', tabname =>'T_TMP_DARF_IF', estimate_percent => DBMS_STATS.AUTO_SAMPLE_SIZE,method_opt => 'FOR ALL COLUMNS SIZE AUTO');
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'IF_1_TIPO_IF_FK_I', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'IF_1_SIST_FK_I', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);								
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'HIST_CART_COMIT_I_NUM_IF', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'HIST_CART_COMIT_I_NUM_CTA_PART', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'HIST_CART_COMIT_I', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'D_OPER_OPER_FK_I', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'IDX$$_24C020002', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'D_OPER_PCK_COMP_DEB_I', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'OPER_TIPO_DEB_P2_FK_I', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'OPER_TIPO_DEB_FK_I', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'OPER_MOD_LIQUID_FK_I', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'COD_OPERACAO_I', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'IF_MOT_SIT_IF_FK_I', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'OPERACAO_I_NUM_ID_OPERACAO_COD', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'OPER_PK', estimate_percent => DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'EXTR_MOVIMENTO_PK', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'HIST_CART_COMIT_I_COD_TIPO_IF', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE);
+								dbms_stats.gather_index_stats(ownname => 'CETIP', indname =>'CART_PARTIC_NUM_CT_PARTIC_FK_I', estimate_percent => DBMS_STATS.AUTO_SAMPLE_SIZE);
+								DBMS_STATS.GATHER_TABLE_STATS(OWNNAME => 'CETIP', TABNAME =>'TIPO_EVENTO_LEGADO',DEGREE => 32);
+								DBMS_STATS.GATHER_TABLE_STATS(OWNNAME => 'CETIP', TABNAME =>'EVENTO',DEGREE => 32);
+								EXCEPTION
+								WHEN NO_DATA_FOUND THEN
+								raise_application_error (-20001,'Nao há plano no cache para um dos SQL_IDs.');
+								raise_application_error (-20002,'Ocorreu um erro. Execute o bloco manualmente para identifica-lo.');
+END;    
+/    
+
+
+
+BEGIN
+ DBMS_SCHEDULER.CREATE_JOB (
+   job_name            =>  'STATISTICS_CDB_IMOB_AGRO', 
+   job_type            =>  'STORED_PROCEDURE',
+   job_action          =>  'SYS.PROC_STATISTICS_CDB_IMOB_AGRO',
+   start_date          =>  '22/07/21 04:00:00,000000000 -03:00',
+   repeat_interval     =>  'FREQ=DAILY;BYHOUR=22;BYDAY=MON,TUE,WED,THU,FRI',
+   enabled              =>  TRUE,
+   comments            =>  'Job de estatísticas - Diário as 22:00hrs - Jobs: CDB, IMOB, AGRO');
+END;
+/

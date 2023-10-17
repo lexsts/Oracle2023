@@ -1,0 +1,60 @@
+Clusterware(CRS) not coming up:-
+
+1. From root user check crs :-
+# crsctl check crs
+CRS-4638: Oracle High Availability Services is online
+CRS-4535: Cannot communicate with Cluster Ready Services
+CRS-4529: Cluster Synchronization Services is online
+CRS-4533: Event Manager is online
+
+
+2. Try to stop and start it:-
+# crsctl stop crs
+CRS-2796: The command may not proceed when Cluster Ready Services is not running
+CRS-4687: Shutdown command has completed with errors.
+CRS-4000: Command Stop failed, or completed with errors.
+
+# crsctl check crs
+CRS-4638: Oracle High Availability Services is online
+CRS-4535: Cannot communicate with Cluster Ready Services
+CRS-4529: Cluster Synchronization Services is online
+CRS-4533: Event Manager is online
+
+# crsctl start crs
+CRS-4640: Oracle High Availability Services is already active
+CRS-4000: Command Start failed, or completed with errors.
+
+
+3. Stop High availabilty service and crs resources:-
+$ORACLE_HOME/bin/crsctl stop crs
+$ORACLE_HOME/bin/crsctl stop res -init -all
+$ORACLE_HOME/bin/crsctl stop has
+
+
+Verify no crs processes should be running :-
+ps -ef|grep d.bin
+
+Note: Kill if any process is still running .
+
+
+4. Now start crs :-
+$ORACLE_HOME/bin/crsctl start has
+
+ASM instances and databases will also come up in current node.
+
+*********
+Se for necessário iniciar o ASM e INSTANCIA isolados
+$ORACLE_HOME/bin/srvctl start asm
+$ORACLE_HOME/bin/srvctl start database -d SPFCNSPB
+*********
+
+5. If any ASM Disk group is dismounted then :-
+
+ALTER DISKGROUP <Disk_Group_Name> MOUNT;
+
+
+
+
+
+
+srvctl start instance -db crm -node node2

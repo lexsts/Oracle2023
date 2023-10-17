@@ -1,0 +1,24 @@
+--https://blogs.oracle.com/datawarehousing/monitoring-parallel-execution-using-real-time-sql-monitoring-in-oracle-database-12c
+--https://blogs.oracle.com/datawarehousing/finding-the-reason-for-dop-downgrades
+--https://blogs.oracle.com/datawarehousing/system-statistics-about-dop-downgrades
+--https://stackoverflow.com/questions/28883525/oracle-is-there-a-way-to-check-what-sql-id-downgraded-to-serial-or-lesser-degre
+--https://docs.oracle.com/en/database/oracle/oracle-database/19/vldbg/monitor-parallel-performance.html#GUID-A36F1D1B-113B-4AEC-8CC1-B284DE87CF8C
+
+SELECT px.SID "SID", p.PID, p.SPID "SPID", px.INST_ID "Inst",
+       px.SERVER_GROUP "Group", px.SERVER_SET "Set",
+       px.DEGREE "Degree", px.REQ_DEGREE "Req Degree", w.event "Wait Event"
+FROM GV$SESSION s, GV$PX_SESSION px, GV$PROCESS p, GV$SESSION_WAIT w
+WHERE s.sid (+) = px.sid AND s.inst_id (+) = px.inst_id AND
+      s.sid = w.sid (+) AND s.inst_id = w.inst_id (+) AND
+      s.paddr = p.addr (+) AND s.inst_id = p.inst_id (+)
+ORDER BY DECODE(px.QCINST_ID,  NULL, px.INST_ID,  px.QCINST_ID), px.QCSID, 
+DECODE(px.SERVER_GROUP, NULL, 0, px.SERVER_GROUP), px.SERVER_SET, px.INST_ID;
+
+select * from v$sql_monitor
+where px_servers_requested <> px_servers_allocated; 
+
+select * from V$SYSSTAT
+   
+select sql_id, sql_text, px_servers_requested, px_servers_allocated
+from v$sql_monitor
+where px_servers_requested <> px_servers_allocated;   

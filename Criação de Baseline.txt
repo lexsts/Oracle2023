@@ -1,0 +1,130 @@
+http://amitpawardba.blogspot.com/2017/05/creating-sql-baseline-to-fix-query-with.html
+
+===== Step 1: Generate all previous history run details of sql_id from AWR ==
+
+break off sdate
+set lines 2000
+set linesize 2000
+col SDATE format a10
+col STIME format a10
+select to_char(begin_interval_time,'YYYY/MM/DD') SDATE,to_char(begin_interval_time,'HH24:MI')  STIME,s.snap_id,
+        sql_id, plan_hash_value PLAN,
+        ROUND(elapsed_time_delta/1000000,2) ET_SECS,
+        nvl(executions_delta,0) execs,
+        ROUND((elapsed_time_delta/decode(executions_delta,null,1,0,1,executions_delta))/1000000,2) ET_PER_EXEC,
+        ROUND((buffer_gets_delta/decode(executions_delta,null,1,0,1,executions_delta)), 2) avg_lio,
+        ROUND((CPU_TIME_DELTA/decode(executions_delta,null,1,0,1,executions_delta))/1000, 2) avg_cpu_ms,
+        ROUND((IOWAIT_DELTA/decode(executions_delta,null,1,0,1,executions_delta))/1000, 2) avg_iow_ms,
+        ROUND((DISK_READS_DELTA/decode(executions_delta,null,1,0,1,executions_delta)), 2) avg_pio,
+        ROWS_PROCESSED_DELTA num_rows
+from DBA_HIST_SQLSTAT S,  DBA_HIST_SNAPSHOT SS
+where s.sql_id = 'cv49bfhpua8s4'
+and ss.snap_id = S.snap_id
+and ss.instance_number = S.instance_number
+order by sdate,stime;
+
+770411846
+
+===== Step 2: Drop SQL Tuning Set (STS) if exists=========================
+
+BEGIN
+  DBMS_SQLTUNE.DROP_SQLSET(
+    sqlset_name => 'SQL_FOR_cv49bfhpua8s4');
+END;
+/
+
+319997
+319998
+319999
+320001
+320004
+320006
+
+====== Step 3: Create SQL Tuning Set ========================================
+
+BEGIN
+  DBMS_SQLTUNE.create_sqlset (
+    sqlset_name  => 'SQL_FOR_cv49bfhpua8s4',
+    description  => 'SQL tuning set for cv49bfhpua8s4');
+END;
+/
+
+/* Populate STS from AWR by specifying snapshot for desired plan which we found using above query.
+In this scenario snap id's are 259467 and 259468 and change plan_hash_value accordingly.*/
+
+DECLARE
+  l_cursor  DBMS_SQLTUNE.sqlset_cursor;
+BEGIN
+  OPEN l_cursor FOR
+    SELECT VALUE(p)
+    FROM   TABLE (DBMS_SQLTUNE.select_workload_repository (
+                    319997,  -- begin_snap
+                    320004,  -- end_snap
+                    q'<sql_id in ('cv49bfhpua8s4') and plan_hash_value in (770411846)>',  -- basic_filter 
+                    NULL, -- object_filter
+                    NULL, -- ranking_measure1
+                    NULL, -- ranking_measure2
+                    NULL, -- ranking_measure3
+                    NULL, -- result_percentage
+                    100)   -- result_limit
+                  ) p;
+
+  DBMS_SQLTUNE.load_sqlset (
+    sqlset_name     => 'SQL_FOR_cv49bfhpua8s4',
+    populate_cursor => l_cursor);
+END;
+/
+
+========= Step 4: Check Sql set details ================================
+
+column text format a20
+select sqlset_name, sqlset_owner, sqlset_id, sql_id,substr(sql_text,1,20) text,elapsed_time,buffer_gets,
+parsing_schema_name, plan_hash_value, bind_data from dba_sqlset_statements where sqlset_name ='SQL_FOR_cv49bfhpua8s4';
+
+========= Step 5: Load desired plan from STS as SQL Plan Baseline =======
+
+DECLARE
+  L_PLANS_LOADED  PLS_INTEGER;
+BEGIN
+  L_PLANS_LOADED := DBMS_SPM.LOAD_PLANS_FROM_SQLSET(
+    SQLSET_NAME => 'SQL_FOR_cv49bfhpua8s4',
+	SQLSET_OWNER => 'GMONTEIRO');
+END;
+/
+
+DECLARE
+  L_PLANS_LOADED  PLS_INTEGER;
+BEGIN
+  L_PLANS_LOADED := DBMS_SPM.LOAD_PLANS_FROM_SQLSET(
+    SQLSET_NAME => 'SQL_FOR_cv49bfhpua8s4');
+END;
+/
+
+======== Step 6: Check sql plan baseline details =======================
+
+SELECT sql_handle, plan_name,enabled,accepted,fixed FROM dba_sql_plan_baselines
+WHERE signature IN (SELECT exact_matching_signature FROM v$sql WHERE sql_id='cv49bfhpua8s4')
+order by accepted,enabled;
+
+======== Step 7: Enable fixed=YES =======================================
+
+var pbsts varchar2(30);
+exec :pbsts := dbms_spm.alter_sql_plan_baseline('SQL_501523b00c704c30','SQL_PLAN_50593q0670m1h0203fa51','ENABLED','YES');
+
+======= Step 8: Purge old execution plan from shared pool ===============
+
+Find below two parameter which are required to purge specific sql from shared pool.
+
+select address||','||hash_value from gv$sqlarea where sql_id = 'cv49bfhpua8s4';
+
+exec sys.dbms_shared_pool.purge('0000002137214FC8,1877545007','C',1);
+
+select 'exec sys.dbms_shared_pool.purge('''||address||','||hash_value||''',''C'',1); ' from gv$sqlarea where sql_id = 'cv49bfhpua8s4';
+
+
+Incidente 
+--execute dbms_sqltune.accept_sql_profile(task_name => 'Tune_new_cv49bfhpua8s4', task_owner => 'GMONTEIRO', replace => TRUE);
+--create index CETIP.PARTIC_IDX01 on CETIP.PARTICIPANTE("IND_EXCLUIDO","NUM_ID_ENTIDADE") ;
+
+
+

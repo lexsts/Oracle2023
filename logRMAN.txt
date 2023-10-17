@@ -1,0 +1,5 @@
+/nsr/applogs>msglog.log
+
+falou
+caso vc precise
+este é o log do rman

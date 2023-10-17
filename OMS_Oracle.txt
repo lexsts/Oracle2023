@@ -1,0 +1,5 @@
+/opt/bea/oms12103/oms/bin/emctl start oms
+/opt/bea/oms12103/oms/bin/emctl start agent
+/opt/bea/oms12103/oms/bin/emctl status oms
+/opt/bea/oms12103/oms/bin/emctl stop oms
+/opt/bea/oms12103/oms/bin/emctl start oms

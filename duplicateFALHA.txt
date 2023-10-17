@@ -1,0 +1,104 @@
+startup clone nomount;
+alter system set  db_name ='SINACORD' comment='Reset to original value by RMAN' scope=spfile;
+alter system reset  db_unique_name scope=spfile;
+shutdown clone immediate;
+startup clone nomount;
+CREATE CONTROLFILE REUSE SET DATABASE "SINACORD" RESETLOGS ARCHIVELOG
+  MAXLOGFILES     30
+  MAXLOGMEMBERS      2
+  MAXDATAFILES      400
+  MAXINSTANCES     2
+  MAXLOGHISTORY     4672
+ LOGFILE
+  GROUP   1 ( '/u10/oradata/sinacord/redo01/SINACOR_redo_g01m01.LOG', '/u11/oradata/sinacord/redo01/SINACOR_redo_g01m02.LOG' ) SIZE 512 M  REUSE,
+  GROUP   2 ( '/u10/oradata/sinacord/redo02/SINACOR_redo_g02m01.LOG', '/u11/oradata/sinacord/redo02/SINACOR_redo_g02m02.LOG' ) SIZE 512 M  REUSE,
+  GROUP   3 ( '/u10/oradata/sinacord/redo03/SINACOR_redo_g03m01.LOG', '/u11/oradata/sinacord/redo03/SINACOR_redo_g03m02.LOG' ) SIZE 512 M  REUSE,
+  GROUP   4 ( '/u10/oradata/sinacord/redo04/SINACOR_redo_g04m01.LOG', '/u11/oradata/sinacord/redo04/SINACOR_redo_g04m02.LOG' ) SIZE 512 M  REUSE,
+  GROUP   5 ( '/u10/oradata/sinacord/redo05/SINACOR_redo_g05m01.LOG', '/u11/oradata/sinacord/redo05/SINACOR_redo_g05m02.LOG' ) SIZE 512 M  REUSE,
+  GROUP   6 ( '/u10/oradata/sinacord/redo06/SINACOR_redo_g06m01.LOG', '/u11/oradata/sinacord/redo06/SINACOR_redo_g06m02.LOG' ) SIZE 512 M  REUSE,
+  GROUP   7 ( '/u10/oradata/sinacord/redo07/SINACOR_redo_g07m01.LOG', '/u11/oradata/sinacord/redo07/SINACOR_redo_g07m02.LOG' ) SIZE 512 M  REUSE,
+  GROUP   8 ( '/u10/oradata/sinacord/redo08/SINACOR_redo_g08m01.LOG', '/u11/oradata/sinacord/redo08/SINACOR_redo_g08m02.LOG' ) SIZE 512 M  REUSE
+ DATAFILE
+  '/u02/oradata/sinacord/SINACOR_system_df01.dbf'
+ CHARACTER SET WE8MSWIN1252
+ 
+ 
+ run
+ {
+   set newname for tempfile  1 to
+ "/u11/oradata/sinacord/temp01/SINACOR_temporary_df01.dbf";
+   set newname for tempfile  2 to
+ "/u11/oradata/sinacord/temp01/SINACOR_temporary_df02.dbf";
+   set newname for tempfile  3 to
+ "/u11/oradata/sinacord/temp01/SINACOR_temporary_df03.dbf";
+   set newname for tempfile  4 to
+ "/u11/oradata/sinacord/temp01/SINACOR_temporary_df04.dbf";
+   switch clone tempfile all;
+   catalog clone datafilecopy  "/u02/oradata/sinacord/SINACOR_sysaux_df01.dbf",
+ "/u01/oradata/sinacord/SINACOR_undotbs_df01.dbf",
+ "/u03/oradata/sinacord/SINACOR_aud1_df01.dbf",
+ "/u03/oradata/sinacord/SINACOR_cwmlite_df01.dbf",
+ "/u03/oradata/sinacord/SINACOR_drsys_df01.dbf",
+ "/u03/oradata/sinacord/SINACOR_example_df01.dbf",
+ "/u03/oradata/sinacord/SINACOR_indx_df01.dbf",
+ "/u03/oradata/sinacord/SINACOR_odm_df01.dbf",
+ "/u03/oradata/sinacord/SINACOR_tsdcv_df01.dbf",
+ "/u03/oradata/sinacord/SINACOR_tsicv_df01.dbf",
+ "/u03/oradata/sinacord/SINACOR_users_df01.dbf",
+ "/u03/oradata/sinacord/SINACOR_tsdms_df01.dbf",
+ "/u03/oradata/sinacord/SINACOR_tools_df01.dbf",
+ "/u11/oradata/sinacord/SINACOR_tsims_df01.dbf",
+ "/u11/oradata/sinacord/SINACOR_tsisw_df01.dbf",
+ "/u11/oradata/sinacord/SINACOR_tsdsw_df01.dbf",
+ "/u11/oradata/sinacord/SINACOR_xdb_df01.dbf",
+ "/u11/oradata/sinacord/SINACOR_tsiar_df01.dbf",
+ "/u11/oradata/sinacord/SINACOR_sisfinance_index_df01.dbf",
+ "/u11/oradata/sinacord/SINACOR_tsicf_df01.dbf",
+ "/u11/oradata/sinacord/SINACOR_tsdcf_df01.dbf",
+ "/u11/oradata/sinacord/SINACOR_tsict_df01.dbf",
+ "/u11/oradata/sinacord/SINACOR_tsisc_df01.dbf",
+ "/u11/oradata/sinacord/SINACOR_tsdct_df01.dbf",
+ "/u05/oradata/sinacord/SINACOR_sisfinance_data_df01.dbf",
+ "/u11/oradata/sinacord/SINACOR_tsdar_df01.dbf",
+ "/u11/oradata/sinacord/SINACOR_tbs_audit_trail_df01.dbf",
+ "/u11/oradata/sinacord/SINACOR_perfstat_df01.dbf",
+ "/u11/oradata/sinacord/SINACOR_tsicc_df01.dbf",
+ "/u10/oradata/sinacord/SINACOR_tsiomf_df01.dbf",
+ "/u04/oradata/sinacord/SINACOR_tsdsc_df01.dbf",
+ "/u04/oradata/sinacord/SINACOR_tsdsc_df02.dbf",
+ "/u06/oradata/sinacord/SINACOR_tsdomf_df01.dbf",
+ "/u05/oradata/sinacord/SINACOR_tsdomf_df02.dbf",
+ "/u10/oradata/sinacord/SINACOR_tsdomf_df03.dbf",
+ "/u07/oradata/sinacord/SINACOR_tsdcc_df01.dbf",
+ "/u06/oradata/sinacord/SINACOR_tsdcc_df02.dbf",
+ "/u07/oradata/sinacord/SINACOR_tsdcc_df03.dbf",
+ "/u07/oradata/sinacord/SINACOR_tsdcc_df04.dbf",
+ "/u10/oradata/sinacord/SINACOR_tsibo_df01.dbf",
+ "/u10/oradata/sinacord/SINACOR_tsibo_df02.dbf",
+ "/u10/oradata/sinacord/SINACOR_tsibo_df03.dbf",
+ "/u10/oradata/sinacord/SINACOR_tsibo_df04.dbf",
+ "/u10/oradata/sinacord/SINACOR_tsdbo_df01.dbf",
+ "/u10/oradata/sinacord/SINACOR_tsdbo_df02.dbf",
+ "/u10/oradata/sinacord/SINACOR_tsdbo_df03.dbf",
+ "/u10/oradata/sinacord/SINACOR_tsdbo_df04.dbf",
+ "/u10/oradata/sinacord/SINACOR_tsdbo_df05.dbf",
+ "/u11/oradata/sinacord/SINACOR_tsdbo_df06.dbf",
+ "/u11/oradata/sinacord/SINACOR_tsdbo_df07.dbf",
+ "/u11/oradata/sinacord/SINACOR_sysaux_df02.dbf",
+ "/u11/oradata/sinacord/SINACOR_undotbs_df02.dbf",
+ "/u11/oradata/sinacord/SINACOR_tsdcc_df05.dbf",
+ "/u11/oradata/sinacord/SINACOR_tsdbo_df08.dbf",
+ "/u11/oradata/sinacord/SINACOR_tsdbo_df09.dbf",
+ "/u11/oradata/sinacord/SINACOR_tsdbo_df10.dbf",
+ "/u11/oradata/sinacord/SINACOR_tsdbo_df11.dbf",
+ "/u11/oradata/sinacord/SINACOR_tsdbo_df12.dbf",
+ "/u11/oradata/sinacord/SINACOR_tsdbo_df13.dbf",
+ "/u05/oradata/sinacord/SINACOR_system_df02.dbf",
+ "/u11/oradata/sinacord/SINACOR_tsdbo_df14.dbf",
+ "/u07/oradata/sinacord/SINACOR_tsibo_df05.dbf",
+ "/u06/oradata/sinacord/SINACOR_tsibo_df06.dbf",
+ "/u07/oradata/sinacord/SINACOR_TS_CONFSERVER_df01.dbf",
+ "/u06/oradata/sinacord/SINACOR_system_df03.dbf";
+   switch clone datafile all;
+}
+

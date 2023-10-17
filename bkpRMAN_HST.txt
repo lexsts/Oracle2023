@@ -1,0 +1,8 @@
+--Histórico de backup
+select object_type,mbytes_processed, TO_CHAR(start_time,'dd/mm/yy hh24:mi') start_time, TO_CHAR(end_time,'dd/mm/yy hh24:mi') end_time,status
+from v$rman_status
+where operation !='RMAN'
+order by recid;
+
+--LOG
+/nsr/apps/logs/msglog_<NOME INSTANCIA>.log

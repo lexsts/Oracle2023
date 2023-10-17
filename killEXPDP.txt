@@ -1,0 +1,20 @@
+ ******************************************
+Matar um Job que esta executando um impdp
+******************************************
+
+step 1:  take the job_name from below views
+select * from USER_DATAPUMP_JOBS;
+select * from DBA_DATAPUMP_SESSIONS;
+
+step 2: try to attach to that job_name which you find out in step1.
+
+oracle@aa: /u02/backups # imp/***** attach=test_DUMP11(job_name)
+
+step 3:  stop job immediate
+
+impdp> STOP_JOB=IMMEDIATE
+impdp>kill_job
+
+
+impdp system/oracle#01 attach=SYSTEM.SYS_IMPORT_FULL_01
+status

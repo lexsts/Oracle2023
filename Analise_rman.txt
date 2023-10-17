@@ -1,0 +1,24 @@
+In the example shown in Figure 22-3, one channel is backing up four datafiles. MAXOPENFILES is set to 4 and FILESPERSET is set to 4. Thus, the level of multiplexing is 4. So, the total size of the buffers for each datafile is 4 MB. The combined size of all the buffers is 16 MB.
+
+The memory from the large pool is used for many features, including the shared server, parallel query, and RMAN I/O slave buffers. Configuring the large pool prevents RMAN from competing with other subsystems for the same memory.
+
+In the ALLOCATE and CONFIGURE CHANNEL commands, the RATE parameter specifies the bytes per second that are read on a channel. You can use this parameter to set an upper limit for bytes read so that RMAN does not consume excessive disk bandwidth and degrade online performance. Essentially, RATE serves as a backup throttle. For example, if you set RATE 1500K, and if each disk drive delivers 3 megabytes per second, then the channel leaves some disk bandwidth available to the online system.
+
+When performing backup encryption, RMAN encrypts backup sets by using one of the algorithms listed in V$RMAN_ENCRYPTION_ALGORITHMS. RMAN offers three modes of encryption: transparent, password-protected, and dual-mode. Backup encryption is explained in "Encrypting RMAN Backups". Backup encryption can be CPU-intensive.
+
+If you use I/O slaves, then set the LARGE_POOL_SIZE initialization parameter to dedicate SGA memory to holding these large memory allocations. This parameter prevents RMAN I/O buffers from competing with the library cache for SGA memory. If I/O slaves for tape I/O were requested but there is not enough space in the SGA for them, slaves are not used, and a message appears in the alert log.
+
+
+
+SELECT TO_CHAR(OPEN_TIME,'DD/MM/YY HH24:MI:SS') START_TIME,
+TO_CHAR(CLOSE_TIME,'DD/MM/YY HH24:MI:SS') END_TIME,
+MAXOPENFILES,
+BYTES/1024/1024 SIZE_MB,
+TOTAL_BYTES/1024/1024 TOTAL_SIZE_MB,
+EFFECTIVE_BYTES_PER_SECOND/1024/1024 MBYTES_PER_SECOND,
+LONG_WAIT_TIME_TOTAL
+DEVICE_TYPE,
+TYPE,
+BUFFER_SIZE,
+STATUS,FILENAME
+FROM V$BACKUP_ASYNC_IO

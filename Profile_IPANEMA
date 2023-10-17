@@ -1,0 +1,222 @@
+--MDA
+CREATE TABLE CETIP.T_TMP_DREGLANCOFF_MDA_V2 TABLESPACE TS_CETIP_DATA_100M NOLOGGING AS SELECT * FROM CETIP.V_DREGLANCOFF_MDA_V2 where 1<>1;
+
+--IPANEMA
+--CONSULTA PARA LOCALIZAR O SQL_ID (da ultima vez foi 8yhacxxffqc1c - 8u378hwvvn7ja):
+SELECT sesion.sql_id,sesion.sid,
+       sesion.serial#,
+       sesion.username,
+       status,
+       to_char(sesion.logon_time,'dd/mm/yy hh24:mi') LOGON_TIME,
+       sesion.last_call_et,
+       sql_text,
+       optimizer_mode,
+       hash_value,
+       address--,
+       --cpu_time / 1000000 "cpu_time (s)",
+       --elapsed_time / 1000000 "elapsed_time (s)"
+  FROM gv$sqlarea sqlarea, gv$session sesion
+ WHERE sesion.sql_hash_value = sqlarea.hash_value   
+   AND sesion.sql_address    = sqlarea.address
+   AND sesion.STATUS='ACTIVE'
+   and sql_text like '%eventodo0_%'--'%CETIP.EVENTO eventodo0_%'
+
+--1 Create a tunning task (sqlID)
+-- select * from DBA_HIST_SNAPSHOT where END_INTERVAL_TIME>SYSDATE-1 ORDER BY SNAP_ID desc
+--execute dbms_workload_repository.create_snapshot();
+DECLARE
+  l_sql_tune_task_id  VARCHAR2(100);
+BEGIN
+  l_sql_tune_task_id := DBMS_SQLTUNE.create_tuning_task (
+                          begin_snap  => 37201,
+                          end_snap    => 37202,
+                          sql_id      => '0x7rzgusv0ygg',
+                          scope       => DBMS_SQLTUNE.scope_comprehensive,
+                          time_limit  => 60,
+                          task_name   => 'd8ubk841fmn19_AWR_tuning_task',
+                          description => 'Tuning task for statement d8ubk841fmn19 in AWR.');
+  DBMS_OUTPUT.put_line('l_sql_tune_task_id: ' || l_sql_tune_task_id);
+END;
+/
+
+
+--2 Execute the tunning task
+BEGIN
+  DBMS_SQLTUNE.EXECUTE_TUNING_TASK( task_name => 'd8ubk841fmn19_AWR_tuning_task' );
+END;
+/
+
+--Verifica status da execução:
+--SELECT status FROM USER_ADVISOR_TASKS WHERE task_name = 'my_sql_tuning_task';
+--SELECT sofar, totalwork FROM V$ADVISOR_PROGRESS WHERE user_name = 'HR' AND task_name = 'my_sql_tuning_task';
+
+
+--3 Verify the results:
+SET LONG 1000
+SET LONGCHUNKSIZE 1000
+SET LINESIZE 100
+SELECT DBMS_SQLTUNE.REPORT_TUNING_TASK( 'd8ubk841fmn19_AWR_tuning_task')
+  FROM DUAL;   
+
+###OBSERVAÇÕES:
+--CRIA PLAN_BASELINE  
+var q number ;
+exec :q := dbms_spm.load_plans_from_cursor_cache(sql_id => 'b0g5p0gvmdjty', plan_hash_value => 1212864121 );
+
+--QUERY PLAN_BASELINE  
+SELECT * FROM DBA_SQL_PLAN_BASELINES ORDER BY CREATED DESC
+
+--FIXA PLANO: SQL_HANDLE, PLAN_NAME
+var pbsts varchar2(30);
+exec :pbsts := dbms_spm.alter_sql_plan_baseline('SQL_3081bf556fd72793','SQL_PLAN_310dzaprxf9wmef9f0227','FIXED','YES');
+
+--VALIDA
+SELECT sql_handle, plan_name,enabled,accepted,fixed FROM dba_sql_plan_baselines
+WHERE signature IN (SELECT exact_matching_signature FROM v$sql WHERE sql_id='4k9ya4njynvd2')
+order by accepted,enabled;
+
+--EXCLUI PLANOS DO CACHE
+select address||','||hash_value,PLAN_HASH_VALUE from gv$sqlarea where sql_id = '6bs55mjd1dywr';
+exec sys.dbms_shared_pool.purge('00000000C916BCB0,804542876','C',1);
+
+--QUERY PLAN_BASELINE  
+SELECT * FROM DBA_SQL_PLAN_BASELINES ORDER BY CREATED DESC
+
+--DROP PLAN_BASELINE  
+DECLARE
+my_plans pls_integer;
+BEGIN
+my_plans := DBMS_SPM.DROP_SQL_PLAN_BASELINE(
+sql_handle => 'SQL_cf429c418b8cc30e'
+);
+dbms_output.put_line('Value is '||my_plans);
+END;
+/
+
+--DROP PROFILE   
+   SELECT NAME, SQL_TEXT, CATEGORY, STATUS,created
+FROM   DBA_SQL_PROFILES order by created desc;
+
+BEGIN
+  DBMS_SQLTUNE.DROP_SQL_PROFILE ( 
+    name => 'SYS_SQLPROF_0179eb80a3aa0003' 
+);
+END;
+/
+  
+
+--PARALELISMO NO PROFILE
+normal: execute dbms_sqltune.accept_sql_profile(task_name =>'0x70gcycsb1gz_AWR_20201019', task_owner => 'ALEXSANTOS', replace => TRUE);
+paralelizado: execute dbms_sqltune.accept_sql_profile(task_name =>'0x70gcycsb1gz_AWR_20201019', task_owner => 'ALEXSANTOS', replace=> TRUE, profile_type => DBMS_SQLTUNE.PX_PROFILE);
+   
+  
+
+--SELECT QUE TROCA DE PROFILE
+SELECT  eventodo0_.num_evento                    AS num1_907_ ,        eventodo0_.TXT_OBSERVACAO                AS TXT2_907_ ,
+        eventodo0_.COD_MOTIVO_ALTERACAO          AS COD3_907_ ,
+        eventodo0_.DAT_LIQUIDACAO                AS DAT4_907_ ,
+        eventodo0_.dat_inclusao                  AS dat5_907_ ,
+        eventodo0_.dat_exclusao                  AS dat6_907_ ,
+        eventodo0_.NUM_CONDICAO_IF               AS NUM7_907_ ,
+        eventodo0_.DAT_ALTERACAO                 AS DAT8_907_ ,
+        eventodo0_.dat_ocorrencia_evento         AS dat9_907_ ,
+        eventodo0_.dat_original_evento           AS dat10_907_,
+        eventodo0_.num_if                        AS num11_907_,
+        eventodo0_.num_id_parametro_ponta        AS num12_907_,
+        eventodo0_.qtd_dias_uteis                AS qtd13_907_,
+        eventodo0_.val_taxa_evento               AS val14_907_,
+        eventodo0_.val_taxa_juros                AS val15_907_,
+        eventodo0_.num_tipo_evento_legado        AS num16_907_,
+        eventodo0_.VAL_LIMITE_INFERIOR           AS VAL17_907_,
+        eventodo0_.VAL_LIMITE_SUPERIOR           AS VAL18_907_,
+        eventodo0_.COD_TIPO_UNIDADE_TEMPO        AS COD19_907_,
+        eventodo0_.COD_TIPO_UNIDADE_TEMPO_APLICA AS COD20_907_,
+        eventodo0_.NUM_ID_ESTADO_EVENTO          AS NUM21_907_,
+        eventodo0_.NUM_ID_ESTADO_EVENTO_FINAL    AS NUM22_907_,
+        eventodo0_.VAL_PU_CALCULADO              AS VAL23_907_,
+        eventodo0_.COD_INDICADOR_FINANCEIRO      AS COD24_907_,
+        eventodo0_.IND_INCORPORA                 AS IND25_907_,
+        eventodo0_.VAL_EVENTO                    AS VAL26_907_,
+        eventodo0_.VAL_REFERENCIA                AS VAL27_907_,
+        eventodo0_.VAL_REFERENCIA_ANTECIPADO     AS VAL28_907_,
+        eventodo0_.VAL_PU_EVENTO                 AS VAL29_907_,
+        eventodo0_.QTD_EVENTO                    AS QTD30_907_,
+        eventodo0_.VAL_PU_JUROS_AMORTIZACAO      AS VAL31_907_,
+        eventodo0_.VAL_PU_PREMIO_AMORTIZACAO     AS VAL32_907_,
+        eventodo0_.IND_CONFIRMACAO_PAGAMENTO     AS IND33_907_,
+        eventodo0_.VAL_PERCENTUAL_PAGAMENTO      AS VAL34_907_,
+        eventodo0_.COD_ESTADO_REGISTRO           AS COD35_907_,
+        eventodo0_.NUM_ID_AGENTE_CALCULO         AS NUM36_907_,
+        eventodo0_.NUM_ID_MARCACAO_MERCADO       AS NUM37_907_,
+        eventodo0_.NUM_ID_HIST_MARCACAO_MERCADO  AS NUM38_907_,
+        eventodo0_.VAL_STRIKE                    AS VAL39_907_,
+        eventodo0_.VAL_ALAVANCAGEM_P1            AS VAL40_907_,
+        eventodo0_.VAL_ALAVANCAGEM_P2            AS VAL41_907_,
+        eventodo0_.NUM_ID_PAPEL_RESP_PU          AS NUM42_907_,
+        eventodo0_.VAL_PERCENTUAL_CURVA          AS VAL43_907_,
+        eventodo0_.NUM_ID_ENTIDADE_ATUALIZ       AS NUM44_907_,
+        eventodo0_.VAL_PU_EVENTO_FUTURO          AS VAL45_907_,
+        eventodo0_.DAT_ULTIMA_ATUALIZACAO_PU     AS DAT46_907_,
+        eventodo0_.VAL_PARIDADE_BASE             AS VAL47_907_,
+        eventodo0_.VAL_PARIDADE_COTADA           AS VAL48_907_,
+        eventodo0_.VAL_CROSS_RATE                AS VAL49_907_,
+        eventodo0_.VAL_BARREIRA_CUPOM            AS VAL50_907_,
+        eventodo0_.VAL_BARREIRA_CHAMADA          AS VAL51_907_,
+        eventodo0_.DAT_COTACAO_FIXING            AS DAT52_907_
+FROM    CETIP.EVENTO eventodo0_
+WHERE
+        (
+                eventodo0_.dat_exclusao IS NULL
+        )
+        AND
+        (
+                eventodo0_.TXT_OBSERVACAO    <>:"SYS_B_0"
+                OR eventodo0_.TXT_OBSERVACAO IS NULL
+        )
+        AND eventodo0_.num_if                =:1
+        AND eventodo0_.dat_ocorrencia_evento>=:2
+        AND eventodo0_.dat_ocorrencia_evento<=:3
+ORDER BY eventodo0_.num_if              ,
+        eventodo0_.dat_original_evento  ,
+        eventodo0_.dat_ocorrencia_evento,
+        eventodo0_.num_tipo_evento_legado
+		
+		
+		
+SELECT
+    eventodo0_.num_evento       AS num1_920_,
+    eventodo0_.txt_observacao   AS txt2_920_,
+    eventodo0_.cod_mo           tivo_alteracao as COD3_920_, eventodo0_.DAT_LIQUIDACAO as DAT4_920_, eventodo0_.dat_inclusao as dat5
+_920_, eventodo0_.dat_exclusao as dat6_920_, eventodo0_.NUM_CONDICAO_IF as NUM7_920_, eventodo0_.DAT
+_ALTERACAO as DAT8_920_, eventodo0_.dat_ocorrencia_evento as dat9_920_, eventodo0_.dat_original_even
+to as dat10_920_, eventodo0_.num_if as num11_920_, eventodo0_.num_id_parametro_ponta as num12_920_,
+eventodo0_.qtd_dias_uteis as qtd13_920_, eventodo0_.val_taxa_evento as val14_920_, eventodo0_.val_ta
+xa_juros as val15_920_, eventodo0_.num_tipo_evento_legado as num16_920_, eventodo0_.VAL_LIMITE_INFER
+IOR as VAL17_920_, eventodo0_.VAL_LIMITE_SUPERIOR as VAL18_920_, eventodo0_.COD_TIPO_UNIDADE_TEMPO a
+s COD19_920_, eventodo0_.COD_TIPO_UNIDADE_TEMPO_APLICA as COD20_920_, eventodo0_.NUM_ID_ESTADO_EVENT
+O as NUM21_920_, eventodo0_.NUM_ID_ESTADO_EVENTO_FINAL as NUM22_920_, eventodo0_.VAL_PU_CALCULADO as
+ VAL23_920_, eventodo0_.COD_INDICADOR_FINANCEIRO as COD24_920_, eventodo0_.IND_INCORPORA as IND25_92
+0_, eventodo0_.VAL_EVENTO as VAL26_920_, eventodo0_.VAL_REFERENCIA as VAL27_920_, eventodo0_.VAL_REF
+ERENCIA_ANTECIPADO as VAL28_920_, eventodo0_.VAL_PU_EVENTO as VAL29_920_, eventodo0_.QTD_EVENTO as Q
+TD30_920_, eventodo0_.VAL_PU_JUROS_AMORTIZACAO as VAL31_920_, eventodo0_.VAL_PU_PREMIO_AMORTIZACAO a
+s VAL32_920_, eventodo0_.IND_CONFIRMACAO_PAGAMENTO as IND33_920_, eventodo0_.VAL_PERCENTUAL_PAGAMENT
+O as VAL34_920_, eventodo0_.COD_ESTADO_REGISTRO as COD35_920_, eventodo0_.NUM_ID_AGENTE_CALCULO as N
+UM36_920_, eventodo0_.NUM_ID_MARCACAO_MERCADO as NUM37_920_, eventodo0_.NUM_ID_HIST_MARCACAO_MERCADO
+ as NUM38_920_, eventodo0_.VAL_STRIKE as VAL39_920_, eventodo0_.VAL_ALAVANCAGEM_P1 as VAL40_920_, ev
+entodo0_.VAL_ALAVANCAGEM_P2 as VAL41_920_, eventodo0_.NUM_ID_PAPEL_RESP_PU as NUM42_920_, eventodo0_
+.VAL_PERCENTUAL_CURVA as VAL43_920_, eventodo0_.NUM_ID_ENTIDADE_ATUALIZ as NUM44_920_, eventodo0_.VA
+L_PU_EVENTO_FUTURO as VAL45_920_, eventodo0_.DAT_ULTIMA_ATUALIZACAO_PU as DAT46_920_, eventodo0_.VAL
+_PARIDADE_BASE as VAL47_920_, eventodo0_.VAL_PARIDADE_COTADA as VAL48_920_, eventodo0_.VAL_CROSS_RAT
+E as VAL49_920_, eventodo0_.VAL_BARREIRA_CUPOM as VAL50_920_, eventodo0_.VAL_BARREIRA_CHAMADA as VAL
+51_920_, eventodo0_.DAT_COTACAO_FIXING as DAT52_920_ from CETIP.EVENTO eventodo0_ where (eventodo0_.
+dat_exclusao is null) and (eventodo0_.TXT_OBSERVACAO<>:"SYS_B_0" or eventodo0_.TXT_OBSERVACAO is nul
+l) and eventodo0_.num_if=:1  and eventodo0_.dat_ocorrencia_evento>=:2  and eventodo0_.dat_ocorrencia _evento <= :3
+ORDER BY
+    eventodo0_.num_if,
+    eventodo0_.dat_original_evento,
+    eventodo0_.dat_ocorrencia_e vento,
+    eventodo0_.num_tipo_evento_legado
+	
+	
+	
+select eventodo0_.num_evento as num1_905_, eventodo0_.TXT_OBSERVACAO as TXT2_905_, eventodo0_.COD_MOTIVO_ALTERACAO as COD3_905_, eventodo0_.DAT_LIQUIDACAO as DAT4_905_, eventodo0_.dat_inclusao as dat5_905_, eventodo0_.dat_exclusao as dat6_905_, eventodo0_.NUM_CONDICAO_IF as NUM7_905_, eventodo0_.DAT_ALTERACAO as DAT8_905_, eventodo0_.dat_ocorrencia_evento as dat9_905_, eventodo0_.dat_original_evento as dat10_905_, eventodo0_.num_if as num11_905_, eventodo0_.num_id_parametro_ponta as num12_905_, eventodo0_.qtd_dias_uteis as qtd13_905_, eventodo0_.val_taxa_evento as val14_905_, eventodo0_.val_taxa_juros as val15_905_, eventodo0_.num_tipo_evento_legado as num16_905_, eventodo0_.VAL_LIMITE_INFERIOR as VAL17_905_, eventodo0_.VAL_LIMITE_SUPERIOR as VAL18_905_, eventodo0_.COD_TIPO_UNIDADE_TEMPO as COD19_905_, eventodo0_.COD_TIPO_UNIDADE_TEMPO_APLICA as COD20_905_, eventodo0_.NUM_ID_ESTADO_EVENTO as NUM21_905_, eventodo0_.NUM_ID_ESTADO_EVENTO_FINAL as NUM22_905_, eventodo0_.VAL_PU_CALCULADO as	

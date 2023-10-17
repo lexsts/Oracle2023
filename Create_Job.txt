@@ -1,0 +1,115 @@
+DBMS_UTILITY.ANALYZE_DATABASE('COMPUTE'); 
+
+--CRIA
+BEGIN
+ DBMS_SCHEDULER.CREATE_JOB (
+   job_name            =>  'STATISTICS_DB', 
+   job_type            =>  'PLSQL_BLOCK',
+   job_action          =>  'BEGIN DBMS_UTILITY.ANALYZE_DATABASE(''COMPUTE'');END;',
+   start_date          =>  '04-MAY-13 07.00.00AM',
+   repeat_interval     =>  'FREQ=WEEKLY; BYDAY=SAT',
+   enabled              =>  TRUE,
+   comments            =>  'Job de estatísticas - Todo Sábado 07:00hrs');
+END;
+/
+
+
+
+--CRIA
+BEGIN
+ DBMS_SCHEDULER.CREATE_JOB (
+   job_name            =>  'STATISTICS_DB', 
+   job_type            =>  'PLSQL_BLOCK',
+   job_action          =>  'BEGIN DBMS_STATS.GATHER_DATABASE_STATS;END;',
+   start_date          =>  '28-DEZ-13 07.00.00.00',
+   repeat_interval     =>  'FREQ=WEEKLY; BYDAY=SAT',
+   enabled              =>  TRUE,
+   comments            =>  'Job de estatísticas - Todo Sábado 07:00hrs');
+END;
+/
+
+
+
+
+--Apaga
+BEGIN
+DBMS_SCHEDULER.DROP_JOB ('STATISTICS_CONCILIACAO');
+END;
+/
+
+BEGIN
+ DBMS_SCHEDULER.CREATE_JOB (
+   job_name            =>  'STATISTICS_CONCILIACAO', 
+   job_type            =>  'STORED_PROCEDURE',
+   job_action          =>  'SYS.PROC_STATISTICS_CONCILIACAO',
+   start_date          =>  '23/07/21 00:30:00,000000000 -03:00',
+   repeat_interval     =>  'FREQ=DAILY;BYHOUR=1;BYDAY=MON,TUE,WED,THU,FRI',
+   enabled              =>  TRUE,
+   comments            =>  'Job de estatísticas - Diário as 02:00hrs - Jobs: CONCILIACAO');
+END;
+/
+
+BEGIN
+ DBMS_SCHEDULER.CREATE_JOB (
+   job_name            =>  'STATISTICS_BDH', 
+   job_type            =>  'PLSQL_BLOCK',
+   job_action          =>  'BEGIN DBMS_STATS.GATHER_DATABASE_STATS(options => 'GATHER AUTO', gather_sys => TRUE, degree=>40);END;',
+   start_date          =>  '03/06/21 21:00:00,000000000 -03:00',
+   repeat_interval     =>  'FREQ=DAILY;BYHOUR=21;BYDAY=MON,TUE,WED,THU,FRI',
+   enabled              =>  TRUE,
+   comments            =>  'Job de estatísticas - Diário as 21:00hrs');
+END;
+/
+
+
+
+--Consulta
+COL JOB_ACTION FORMAT A30;
+COL JOB_NAME FORMAT A30;
+COL OWNER FORMAT A10;
+COL REPEAT_INTERVAL FORMAT A20;
+COL JOB_ACTION FORMAT A30;
+COL START_DATE FORMAT A40;
+
+
+--CoNsulta basica
+SELECT OWNER,JOB_NAME,JOB_ACTION,START_DATE,REPEAT_INTERVAL,STATE,NEXT_RUN_DATE FROM DBA_SCHEDULER_JOBS;
+
+--Consulta execucoes
+select * from dba_scheduler_job_log WHERE STATUS<>'SUCCEEDED' ORDER BY LOG_DATE DESC;
+select * from dba_scheduler_job_run_details where job_name='STATISTICS_CDB_IMOB_AGRO' order by log_date desc
+
+select * from dba_scheduler_job_run_details where job_name='STATISTICS_BDH' AND LOG_ID NOT IN (4437540,4433940,4433938) order by log_date desc
+
+
+--EXEC JOB
+alter session set current_schema=PR01NEMO
+
+EXEC DBMS_SCHEDULER.RUN_JOB('PR01NEMO.GATHER_PART_STATS_SUMMARY');
+EXEC DBMS_SCHEDULER.STOP_JOB('PR01NEMO.GATHER_PART_STATS_SUMMARY');
+
+
+EXEC DBMS_SCHEDULER.RUN_JOB('PR01MROO.PR01MRO_MAN_PARTITIONS');
+ 
+ 
+GATHER_PART_STATS_SUMMARY
+
+
+
+
+
+#####PROBLEMAS ENCONTRADOS:
+Existem objetos que estão com as estatísticas travadas.
+Verificar quais são com a consulta abaixo:
+
+
+SELECT OWNER,TABLE_NAME,OBJECT_TYPE,LAST_ANALYZED,STATTYPE_LOCKED 
+from dba_tab_statistics where stattype_locked is not null;
+
+
+Caso não haja problemas em atualiza-las, executar o desbloqueio dos schemas:
+begin
+dbms_stats.unlock_schema_stats(ownname => 'SYS');
+dbms_stats.unlock_schema_stats(ownname => 'USER1');
+end;
+/

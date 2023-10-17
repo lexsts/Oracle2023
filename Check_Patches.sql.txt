@@ -1,0 +1,33 @@
+--ORACLE 11
+col ACTION format a15
+col NAMESPACE format a10
+col COMMENTS format a30
+col ACTION_TIME format a35
+col VERSION format a10
+
+--11.2.0.2
+17272753, 17082375, 17082367
+
+--11.2.0.3
+19852361, 19440385, 20996944, 21068553, 20760997, 20803576
+
+--11.2.0.4
+29251270, 29255947, 28204707, 28364007, 28440700
+
+--12.1.0.2
+28349311, 22899531, 20485724, 29141015, 29176139, 29176115, 29251241
+
+--12.2.0.1
+27872031, 27013506, 29314339, 29249637, 29301687, 28833258, 28790640
+
+select * from sys.v$version ;
+select * from sys.registry$history;
+
+--ORACLE 12
+select PATCH_ID,STATUS from sys.dba_registry_sqlpatch WHERE PATCH_ID IN (28349311, 22899531, 20485724, 29141015, 29176139, 29176115, 29251241)
+
+--SYSDBA
+set serverout on;
+exec dbms_qopatch.get_sqlpatch_status;
+select dbms_qopatch.GET_OPATCH_LIST from dual;
+select xmltransform(dbms_qopatch.is_patch_installed('21359755'), dbms_qopatch.get_opatch_xslt) "Patch installed?" from dual;

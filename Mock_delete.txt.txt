@@ -1,0 +1,22 @@
+SQL> delete from ORDER_HISTORY Where Eng_Received_Time between trunc(sysdate-1) || ' 04:00:00.000 AM' and trunc(sysdate) || ' 11:59:59.999 PM';
+
+4827583 rows deleted.
+
+SQL> alter session set current_schema = PR03FCNEQTO;
+
+Session altered.
+
+SQL> select sys_context('userenv','current_schema') "USER", 'TRADES' "TABLE", max(db_send_time) "LAST UPDATE" from trades
+2 UNION ALL
+3 select sys_context('userenv','current_schema') "USER", 'ORDERS' "TABLE", max(eng_received_time) "LAST UPDATE" from orders
+4 UNION ALL
+5 select sys_context('userenv','current_schema') "USER", 'ORDER_HISTORY' "TABLE", max(eng_received_time) "LAST UPDATE" from order_history
+6 UNION ALL
+7 select sys_context('userenv','current_schema') "USER", 'TRADE_SUMMARY' "TABLE", max(to_date(SESSION_DATE,'yyyymmdd')) "LAST UPDATE" from trade_summary;
+
+USER TABLE LAST UPDATE
+--------------- ------------- ---------------------------------------------------------------------------
+PR03FCNEQTO TRADES 23-OCT-20 07.47.58.686000 PM
+PR03FCNEQTO ORDERS 23-OCT-20 09.56.32.532000 PM
+PR03FCNEQTO ORDER_HISTORY 23-OCT-20 09.56.32.532000 PM
+PR03FCNEQTO TRADE_SUMMARY 23-OCT-20 12.00.00.000000 AM

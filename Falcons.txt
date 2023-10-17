@@ -1,0 +1,8 @@
+truncate table ORDER_HISTORY;
+truncate table TRADES;
+truncate table ORDERS;
+truncate table TRADE_SUMMARY;
+truncate table TERMO_HISTORY;
+truncate table DB_EVENT_LOGS;
+truncate table ORDER_HISTORY_BACKUP 
+truncate table MSG_PROCESSING_SEQ  

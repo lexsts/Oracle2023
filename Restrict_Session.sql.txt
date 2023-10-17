@@ -1,0 +1,15 @@
+SQL> select logins from v$instance;
+
+LOGINS
+----------
+RESTRICTED
+
+SQL> alter system disable restricted session;
+
+System altered.
+
+SQL> select logins from v$instance;
+
+LOGINS
+----------
+ALLOWED

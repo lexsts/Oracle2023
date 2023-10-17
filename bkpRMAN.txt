@@ -1,0 +1,58 @@
+--BDH
+nohup /u01/app/oracle/admin/BDH/scripts/backupbd/exec_backup_recman_arcdisc.ksh BDH &
+
+
+rman target /
+connect catalog catowner/saturno11@catdb
+backup archivelog all filesperset 1 delete all input;
+--delete archivelog all backed up 1 times to sbt;
+--DELETE ARCHIVELOG ALL; --coelhoneto
+
+
+
+while true
+do
+rman target / <<EOF
+delete noprompt archivelog all;
+--delete noprompt archivelog all backed up 1 times to sbt;
+
+exit
+
+EOF
+
+sleep 600
+
+done
+
+
+ALTER SYSTEM SET log_archive_dest_1='location=+BKUPDG' SCOPE=BOTH;
+
+
+CONFIGURE SNAPSHOT CONTROLFILE NAME TO '/oracle/PRODUTOS/bckon/snapcf_PRODUTOS2.f';
+CONFIGURE SNAPSHOT CONTROLFILE NAME TO '+BKUPDG/PRODUTOS/AUTOBACKUP/snapcf_PRODUTOS2.f';
+
+CONFIGURE SNAPSHOT CONTROLFILE NAME TO '/oracle/IFAT/bckon/snapcf_ifat2.f';
+CONFIGURE SNAPSHOT CONTROLFILE NAME TO '+RECO/IFAT/AUTOBACKUP/snapcf_IFAT2.f';
+
++RECO
+
+/oracle/IFAT/bckon/snapcf_ifat2.f'
+
+
+CONFIGURE SNAPSHOT CONTROLFILE NAME TO '+DATA/SSI/CONTROLFILE/snapshot_controlfile.f';
+
+CONFIGURE SNAPSHOT CONTROLFILE NAME TO '+DATA/STGSEG/CONTROLFILE/snapshot_controlfile.f'; # default
+
+
+--PROGRESS
+select SESSION_KEY, INPUT_TYPE, STATUS,
+to_char(START_TIME,'mm/dd/yy hh24:mi') start_time,
+to_char(END_TIME,'mm/dd/yy hh24:mi') end_time,
+elapsed_seconds/3600 hrs from V$RMAN_BACKUP_JOB_DETAILS
+order by session_key DESC;
+
+SELECT SID, SERIAL#, CONTEXT, SOFAR, TOTALWORK, 
+ROUND (SOFAR/TOTALWORK*100, 2) "% COMPLETE"
+FROM gV$SESSION_LONGOPS
+WHERE OPNAME LIKE 'RMAN%' AND OPNAME NOT LIKE '%aggregate%'
+AND TOTALWORK! = 0 AND SOFAR <> TOTALWORK;

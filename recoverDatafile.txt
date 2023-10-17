@@ -1,0 +1,43 @@
+SQL> select file#, name,status from  v$datafile where file#=62;
+
+     FILE#
+----------
+NAME
+--------------------------------------------------------------------------------
+STATUS
+-------
+        62
+/u01/oradata/sinacorq/SINACOR_tsdbo_df14.dbf
+RECOVER
+
+
+SQL> recover datafile '/u01/oradata/sinacorq/SINACOR_tsdbo_df14.dbf';
+Media recovery complete.
+SQL> select file#, name,status from  v$datafile where file#=62;
+
+     FILE#
+----------
+NAME
+--------------------------------------------------------------------------------
+STATUS
+-------
+        62
+/u01/oradata/sinacorq/SINACOR_tsdbo_df14.dbf
+OFFLINE
+
+
+SQL> alter database datafile '/u01/oradata/sinacorq/SINACOR_tsdbo_df14.dbf' online;
+
+Database altered.
+
+SQL> select file#, name,status from  v$datafile where file#=62;
+
+     FILE#
+----------
+NAME
+--------------------------------------------------------------------------------
+STATUS
+-------
+        62
+/u01/oradata/sinacorq/SINACOR_tsdbo_df14.dbf
+ONLINE

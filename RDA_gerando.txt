@@ -1,0 +1,2 @@
+rda.sh -S /*Para gerar o arquivo de analise: setup.cfg*/
+rda.sh -v /*Para coletar as informações*/

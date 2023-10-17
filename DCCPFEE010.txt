@@ -1,0 +1,3 @@
+   select count(*)
+from POSNEG.Aotcotc_Perm_Fee fee
+where fee.otc_fee_clcn_date = '10/02/2021';

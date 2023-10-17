@@ -1,0 +1,14 @@
+Indexes:
+SELECT 'alter index '||owner||'.'||index_name||' rebuild tablespace '||tablespace_name ||';' sql_to_rebuild_index
+FROM   dba_indexes
+WHERE  status = 'UNUSABLE';
+
+Index partitions:
+SELECT 'alter index '||index_owner||'.'||index_name ||' rebuild partition '||PARTITION_NAME||' TABLESPACE '||tablespace_name ||';' sql_to_rebuild_index
+FROM   dba_ind_partitions
+WHERE  status = 'UNUSABLE';
+
+Index subpartitions:
+SELECT 'alter index '||index_owner||'.'||index_name ||' rebuild subpartition '||SUBPARTITION_NAME||' TABLESPACE '||tablespace_name ||';' sql_to_rebuild_index
+FROM   dba_ind_subpartitions
+WHERE  status = 'UNUSABLE';

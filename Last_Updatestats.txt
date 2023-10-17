@@ -1,0 +1,18 @@
+select index_name,
+table_name,
+num_rows,
+sample_size,
+distinct_keys,
+TO_CHAR(last_analyzed,'dd/mm/yy hh24:mi') LAST_ANALYZED,
+status
+from DBA_indexes where table_owner='CETIP'
+AND index_name IN ('IF_V_POSIC_CUST_MALOTE_I'
+,'IND_V_CVM'
+,'IF_V_INSTR_FINANCEIROS_I'
+,'IF_V_CONTRATOS_TERMO'
+,'IF_V_POSICAO_SWAP_I'
+,'IF_1_SIST_FK_I'
+,'IF_MOT_SIT_IF_FK_I'
+,'IF_1_TIPO_IF_FK_I'
+,'COMITENTE_PK')
+order by table_owner;

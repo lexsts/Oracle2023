@@ -1,0 +1,1 @@
+exec dbms_stats.purge_stats(DBMS_STATS.PURGE_ALL);

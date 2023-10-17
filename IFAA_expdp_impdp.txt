@@ -1,0 +1,81 @@
+expdp / dumpfile=expdp_IFAA_IFAT_%u.dmp logfile=expdp_IFAA_IFAT.log directory=DATA_PUMP_DIR reuse_dumpfiles=y tables=PTVR.TPTVRARQUIVO_CONSUMO_USUARIO,PTVR.LPTVRCONSUMO_USUARIO_MESA_CRED,INCA.CADU_EMPRESA,GRCR.PATRIMONIO_VEICULAR_ANALITICO,GRCR.PATRIMONIO_VEICULAR_SINTETICO,GRCR.FINANCIAMENTO,GRCR.DECODIFICACAO_VEICULO_FIPE,GRCR.DECODIFICACAO_VEICULO_MOLICAR,GRCR.PATRIMONIO_VEICULAR_CONSOLIDADO parallel=2 cluster=n
+
+
+expdp / dumpfile=expdp_IFAA_IFAT_%u.dmp logfile=expdp_IFAA_IFAT.log directory=DATA_PUMP_DIR reuse_dumpfiles=y schemas=PTVR,INCA,GRCR parallel=4 cluster=n
+
+
+expdp / dumpfile=expdp_IFAA_IFAT_PATRIMONIO_VEICULAR_CONSOLIDADO_%u.dmp logfile=expdp_PATRIMONIO_VEICULAR_CONSOLIDADO.log directory=DATA_PUMP_DIR reuse_dumpfiles=y tables=GRCR.PATRIMONIO_VEICULAR_CONSOLIDADO parallel=2 cluster=n
+expdp / dumpfile=expdp_IFAA_IFAT_DECODIFICACAO_VEICULO_MOLICAR_%u.dmp logfile=expdp_DECODIFICACAO_VEICULO_MOLICAR.log directory=DATA_PUMP_DIR reuse_dumpfiles=y tables=GRCR.DECODIFICACAO_VEICULO_MOLICAR parallel=2 cluster=n
+expdp / dumpfile=expdp_IFAA_IFAT_TPTVRARQUIVO_CONSUMO_USUARIO_%u.dmp logfile=expdp_TPTVRARQUIVO_CONSUMO_USUARIO.log directory=DATA_PUMP_DIR reuse_dumpfiles=y tables=PTVR.TPTVRARQUIVO_CONSUMO_USUARIO parallel=2 cluster=n
+expdp / dumpfile=expdp_IFAA_IFAT_LPTVRCONSUMO_USUARIO_MESA_CRED_%u.dmp logfile=expdp_LPTVRCONSUMO_USUARIO_MESA_CRED.log directory=DATA_PUMP_DIR reuse_dumpfiles=y tables=PTVR.LPTVRCONSUMO_USUARIO_MESA_CRED parallel=2 cluster=n
+expdp / dumpfile=expdp_IFAA_IFAT_CADU_EMPRESA_%u.dmp logfile=expdp_CADU_EMPRESA.log directory=DATA_PUMP_DIR reuse_dumpfiles=y tables=INCA.CADU_EMPRESA parallel=2 cluster=n
+expdp / dumpfile=expdp_IFAA_IFAT_PATRIMONIO_VEICULAR_ANALITICO_%u.dmp logfile=expdp_PATRIMONIO_VEICULAR_ANALITICO.log directory=DATA_PUMP_DIR reuse_dumpfiles=y tables=GRCR.PATRIMONIO_VEICULAR_ANALITICO parallel=2 cluster=n
+expdp / dumpfile=expdp_IFAA_IFAT_PATRIMONIO_VEICULAR_SINTETICO_%u.dmp logfile=expdp_PATRIMONIO_VEICULAR_SINTETICO.log directory=DATA_PUMP_DIR reuse_dumpfiles=y tables=GRCR.PATRIMONIO_VEICULAR_SINTETICO parallel=2 cluster=n
+expdp / dumpfile=expdp_IFAA_IFAT_FINANCIAMENTO_%u.dmp logfile=expdp_FINANCIAMENTO.log directory=DATA_PUMP_DIR reuse_dumpfiles=y tables=GRCR.FINANCIAMENTO parallel=2 cluster=n
+expdp / dumpfile=expdp_IFAA_IFAT_DECODIFICACAO_VEICULO_FIPE_%u.dmp logfile=expdp_DECODIFICACAO_VEICULO_FIPE.log directory=DATA_PUMP_DIR reuse_dumpfiles=y tables=GRCR.DECODIFICACAO_VEICULO_FIPE parallel=2 cluster=n
+--tabela é criada em 15 minutos
+
+
+
+impdp MNTEXPDP/wO2CkfEJsXaQ5G8kE597 dumpfile=expdp_IFAA_IFAT_DECODIFICACAO_VEICULO_MOLICAR_%u.dmp logfile=impdp_DECODIFICACAO_VEICULO_MOLICAR.log directory=DATA_PUMP_DIR remap_tablespace=TS_GRCR_FLASH:TS_GRCR_D,TS_IFTA_DATA:TS_GRCR_D,TS_IFTA_INDX:TS_GRCR_I cluster=n parallel=2 table_exists_action=replace exclude=GRANT
+impdp MNTEXPDP/wO2CkfEJsXaQ5G8kE597 dumpfile=expdp_IFAA_IFAT_TPTVRARQUIVO_CONSUMO_USUARIO_%u.dmp logfile=impdp_TPTVRARQUIVO_CONSUMO_USUARIO.log directory=DATA_PUMP_DIR remap_tablespace=TS_GRCR_FLASH:TS_GRCR_D,TS_IFTA_DATA:TS_GRCR_D,TS_IFTA_INDX:TS_GRCR_I cluster=n parallel=2 table_exists_action=replace exclude=GRANT
+impdp MNTEXPDP/wO2CkfEJsXaQ5G8kE597 dumpfile=expdp_IFAA_IFAT_LPTVRCONSUMO_USUARIO_MESA_CRED_%u.dmp logfile=impdp_LPTVRCONSUMO_USUARIO_MESA_CRED.log directory=DATA_PUMP_DIR remap_tablespace=TS_GRCR_FLASH:TS_GRCR_D,TS_IFTA_DATA:TS_GRCR_D,TS_IFTA_INDX:TS_GRCR_I cluster=n parallel=2 table_exists_action=replace exclude=REF_CONSTRAINT,GRANT
+impdp MNTEXPDP/wO2CkfEJsXaQ5G8kE597 dumpfile=expdp_IFAA_IFAT_CADU_EMPRESA_%u.dmp logfile=impdp_CADU_EMPRESA.log directory=DATA_PUMP_DIR remap_tablespace=TS_GRCR_FLASH:TS_GRCR_D,TS_IFTA_DATA:TS_GRCR_D,TS_IFTA_INDX:TS_GRCR_I cluster=n parallel=2 table_exists_action=replace exclude=REF_CONSTRAINT,GRANT
+impdp MNTEXPDP/wO2CkfEJsXaQ5G8kE597 dumpfile=expdp_IFAA_IFAT_PATRIMONIO_VEICULAR_ANALITICO_%u.dmp logfile=impdp_PATRIMONIO_VEICULAR_ANALITICO.log directory=DATA_PUMP_DIR remap_tablespace=TS_GRCR_FLASH:TS_GRCR_D,TS_IFTA_DATA:TS_GRCR_D,TS_IFTA_INDX:TS_GRCR_I cluster=n parallel=2 table_exists_action=replace exclude=REF_CONSTRAINT,GRANT
+impdp MNTEXPDP/wO2CkfEJsXaQ5G8kE597 dumpfile=expdp_IFAA_IFAT_PATRIMONIO_VEICULAR_SINTETICO_%u.dmp logfile=impdp_PATRIMONIO_VEICULAR_SINTETICO.log directory=DATA_PUMP_DIR remap_tablespace=TS_GRCR_FLASH:TS_GRCR_D,TS_IFTA_DATA:TS_GRCR_D,TS_IFTA_INDX:TS_GRCR_I cluster=n parallel=2 table_exists_action=replace exclude=GRANT
+impdp MNTEXPDP/wO2CkfEJsXaQ5G8kE597 dumpfile=expdp_IFAA_IFAT_FINANCIAMENTO_%u.dmp logfile=impdp_FINANCIAMENTO.log directory=DATA_PUMP_DIR remap_tablespace=TS_GRCR_FLASH:TS_GRCR_D,TS_IFTA_DATA:TS_GRCR_D,TS_IFTA_INDX:TS_GRCR_I cluster=n parallel=2 table_exists_action=replace exclude=GRANT
+impdp MNTEXPDP/wO2CkfEJsXaQ5G8kE597 dumpfile=expdp_IFAA_IFAT_DECODIFICACAO_VEICULO_FIPE_%u.dmp logfile=impdp_DECODIFICACAO_VEICULO.log directory=DATA_PUMP_DIR remap_tablespace=TS_GRCR_FLASH:TS_GRCR_D,TS_IFTA_DATA:TS_GRCR_D,TS_IFTA_INDX:TS_GRCR_I cluster=n parallel=2 table_exists_action=replace exclude=GRANT
+impdp MNTEXPDP/wO2CkfEJsXaQ5G8kE597 dumpfile=expdp_IFAA_IFAT_PATRIMONIO_VEICULAR_CONSOLIDADO_%u.dmp logfile=impdp_PATRIMONIO_VEICULAR_CONSOLIDADO.log directory=DATA_PUMP_DIR remap_tablespace=TS_GRCR_FLASH:TS_GRCR_D,TS_IFTA_DATA:TS_GRCR_D,TS_IFTA_INDX:TS_GRCR_I cluster=n parallel=2 table_exists_action=replace exclude=GRANT
+
+
+
+
+index="'INX_PVAN_02','INX_PVAN_03'"
+
+SELECT
+    mamo.mamo_cod_marca_modelo   cod_marca_modelo,
+    mamo.mamo_ds_descricao       ds_descricao_denatran,
+    fipe.fipe_cd_fipe            cd_fipe,
+    fipe.fipe_ds_marca
+    || ' '
+    || fipe.fipe_ds_modelo ds_descricao_fipe,
+    MIN(nvl(frot.frot_ano_modelo, 0)) ano_modelo_min,
+    MAX(nvl(frot.frot_ano_modelo, 0)) ano_modelo_max
+FROM
+    dena.marca_modelo          mamo,
+    dena.base_frota_nacional   frot,
+    base_fipe                  fipe,
+    tbl_versao_referencia      verf,
+    tbl_versao_referencia      verf1
+WHERE
+    mamo.mamo_cod_marca_modelo = frot.frot_cod_marca_modelo
+    AND mamo.mamo_cd_veiculo_denatran = fipe.fipe_cd_veiculo_denatran
+    AND mamo.mamo_id_versao_ref = verf.vere_id_versao_ref
+    AND fipe.fipe_id_versao_ref = verf1.vere_id_versao_ref
+    AND mamo.mamo_id_marca_ref = fipe.fipe_id_marca_ref
+    AND mamo.mamo_id_modelo_ref = fipe.fipe_id_modelo_ref
+    AND mamo.mamo_id_cilindrada_ref = fipe.fipe_id_cilindrada_ref
+    AND mamo.mamo_id_versao_ref = fipe.fipe_id_versao_ref
+    AND verf.vere_ds_versao_referencia LIKE '%'
+                                            || verf1.vere_ds_versao_referencia
+                                            || '%'
+    AND NOT EXISTS (
+        SELECT
+            1
+        FROM
+            tbl_atribuicao_fipe
+        WHERE
+            atfi_cd_marca_modelo = mamo.mamo_cod_marca_modelo
+            AND atfi_cd_fipe = fipe.fipe_cd_fipe
+            AND atfi_ano_modelo = frot.frot_ano_modelo
+    )
+GROUP BY
+    mamo.mamo_cod_marca_modelo,
+    mamo.mamo_ds_descricao,
+    fipe.fipe_cd_fipe,
+    fipe.fipe_ds_marca
+    || ' '
+    || fipe.fipe_ds_modelo
+ORDER BY
+    mamo.mamo_cod_marca_modelo,
+    MIN(frot.frot_ano_modelo)

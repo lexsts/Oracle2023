@@ -1,0 +1,8 @@
+--Nomenclatura
+0 - RAC
+1 - Single
+
+
+--Relatórios do Reporting Services
+http://repcorap/ReportManager/Pages/Report.aspx?ItemPath=%2fMONITORIA%2fDashboard+-+Response+Time%2fReport_Dashboard
+http://repcorap/ReportManager/Pages/Report.aspx?ItemPath=%2fMONITORIA%2fReport_Dashboard_Falcon

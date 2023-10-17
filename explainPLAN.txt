@@ -1,0 +1,110 @@
+EXPLAIN PLAN SET STATEMENT_ID='Analise20150415' FOR Select
+ *
+  From (Select ord.Eng_Received_Time Sort_Eng_Received_Time,
+                o.ORDER_ID,
+                o.EVENT_ID,
+                o.MACHINE_ID,
+                o.SERVER_ID,
+                o.HON,
+                o.ACCOUNT,
+                o.SUBSCRIBER_ID,
+                o.TRADER_ID,
+                o .PRODUCER_ID,
+                o.PRODUCT_GROUP,
+                o.PRODUCT_ID,
+                o.FIRM_ID,
+                o.OPERATOR_ID,
+                o.LOCATION_ID,
+                o.ORDER_SIDE,
+                o.TON,
+                o.CLIENT_ORDER_ID,
+                o.CORR_CLIENT_ORDER_ID,
+                o.ORIG_CLIENT_ORDER_ID,
+                o.ORDER_TYPE,
+                o.TRANSACTION_TIME,
+                o.SENDING_TIME,
+                o.CTI_CODE,
+                replace(o.CTI_Origin, '?', '') CTI_Origin,
+                o.OMNIBUS_ACCOUNT,
+                o.TIME_IN_FORCE,
+                o.ORDER_STATUS,
+                o.ORDER_PRICE,
+                o.ORDER_QTY,
+                o.REMAINING_QTY,
+                o.TOTAL_FILL_QTY,
+                o.FEE_TYPE,
+                o.GIVEUP_INDICATOR,
+                o.GIVEUP_FIRM_ID,
+                o.MSG_SEQ,
+                o.DISPLAY_TIME,
+                o.POST_TRADE_ALLOCATION,
+                o.ENG_RECEIVED_TIME,
+                o.DB_SEND_TIME,
+                o.REJECT_REASON,
+                o.SESSION_DATE,
+                o.QUOTE_TYPE,
+                o.QUOTE_ID,
+                o.QUOTE_SET_ID,
+                o.QUOTE_ENTRY_ID,
+                o.REQ_ISINRFQ_ID,
+                o.EXPIRE_DATE,
+                o.ORDER_TIME_PRIORITY,
+                o.SESSION_ID,
+                o.SUBSCRIBER_ALIAS,
+                o.TRANSPORT_ID,
+                o.MIN_QTY,
+                o.MAX_SHOW_QTY,
+                o.BOOKED_QTY,
+                o.STOP_PRICE,
+                o.ALLOC_ACCOUNT,
+                o.ORDER_HANDLING_INST_SOURCE,
+                o.TIB_EVENT_ID,
+                o.PRODUCT_CATEGORY,
+                o.STRATEGY_TYPE,
+                o.MICCODE,
+                o.ISINCODE,
+                o.PRODUCT_CODE,
+                o.MANUAL_ORDER_IND,
+                o.SECONDARY_ORDER_ID,
+                o.MEMO,
+                o.ORDER_RESTRICTIONS,
+                o.TRADE_ALLOC_INDICATOR,
+                o.POSITION_EFFECT,
+                o.CLEARING_FIRM_ID,
+                o.EXECUTING_TRADER_ID,
+                o.CANCEL_REASON,
+                O.INVESTOR_ID,
+                o.SECURITY_ID,
+                o.SECURITY_ID_SOURCE,
+                o.SECURITY_EXCHANGE,
+                o.PARTY_BLOCK,
+                o.ACCOUNT_TYPE,
+                o.PRIORITY_ENTRY_TIME,
+                o.LAG_TIME,
+                o.TARGET_COMP_ID,
+                null Cross_Id,
+                null Host_Cross_Id,
+                null Cross_Type,
+                null Trans_Book_Time
+           From PR04EQTO.order_History o, PR04EQTO.orders ord
+          Where ord.eng_received_time = o.eng_received_time
+            AND ord.order_id = o.order_id
+            AND ord.event_id = o.event_id
+            And ord.eng_received_time between '10/04/15 12:00:00,000000000' and '14/04/15 12:00:00,000000000'            
+            And ord.order_status in (1, 6, 2)
+            and o.Firm_id in ('386')
+            and o.trader_id in ('99546')
+            and UPPER(o.Product_Group) in
+                ('64', '5Z', '6A', '6Z', '31', '39', '7Z', '03', '06', '18', '19', '2P
+', '69', '72', '85', '27', '29', '30', '40', '9A', '11', '12', '23', '25', '41', '47', '54', '71', '83', '5A', '33', '35
+', '1A', '59', '63', '81', '08', '2R', '38', '87', '89', '9F', '4T', '65', '1L', '28', '4Z', '8Z', '15', '17', '4A', '49
+', '62', '79', '90', '9B', '04', '07', '1Z', '22', '67', '9C', '05', '01', '10', '1T', '20', '3P', '45', '66', '74', '9Z
+', '95', '0B', '0L', '77', '7A', '21', '26', '2T', '3T', '2Z', '50', '51', '52', '55', '3A', '60', '61', '76', '32', '34
+', '78', '02', '09', '1P', '24', '2F', '36', '37', '53', '68', '6T', '73', '75', '1R', '96', '97', '9X', '5T', '2A', '46
+', '56', '70', '48', '3Z', '5L', '2L')
+            and o.Order_Type IN (2, 1, 5, 4, 3)
+          Order By ord.eng_received_time DESC)
+Where rownum < 10002;
+
+--select * from table(dbms_xplan.display);
+SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY('PLAN_TABLE','Analise20150415','ALL'));

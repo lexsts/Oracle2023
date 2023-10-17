@@ -1,0 +1,17 @@
+oracle12
+srvctl relocate service -db RPFFESPA -service gpstrdb -oldinst RPFFESPA1 -newinst RPFFESPA2
+
+
+--Stop/start um determinado recurso do cluster
+./crsctl stop res ora.oratrd00602b4-vip.vip -n oratrd00602b -f
+./crsctl start res ora.oratrd00602b4-vip.vip -n oratrd00602b -f
+
+
+--Realoca serviço em outro node
+./crsctl relocate res ora.scan1.vip -n oratrd01001b -f
+./crsctl relocate res ora.rbnembra.nemab2.svc -n oratrd00602b -f
+./crsctl relocate res ora.cvu -n orapos40001b
+./crsctl relocate res ora.oc4j -n orapos40001b
+./crsctl relocate res ora.LISTENER_SCAN1.lsnr -n orapos10102b
+./crsctl relocate res ora.LISTENER_SCAN2.lsnr -n orapos10101b
+./crsctl relocate res ora.LISTENER_SCAN3.lsnr -n orapos10101b

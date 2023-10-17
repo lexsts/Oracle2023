@@ -1,0 +1,96 @@
+ create restore point INSTALL_SINACOR_PLUS guarantee flashback database;
+
+oracle /data03/oracle/product/11.2.0.2/oradata/SINACOR/archive/SINACOR> du -sh *
+  93G   archivelog
+  11G   flashback
+
+SELECT A.*
+  FROM V$RESTORE_POINT A;
+
+
+
+DROP RESTORE POINT INSTALL_SINACOR_PLUS;
+
+
+oracle /data03/oracle/product/11.2.0.2/oradata/SINACOR/archive/SINACOR> du -sh *
+  93G   archivelog
+  16kb   flashback
+
+SELECT A.*
+  FROM V$RESTORE_POINT A;
+  
+  
+  
+======================================================================================
+SIMULAÇÃO:
+======================================================================================
+ 
+ 
+ 
+ 
+ ------
+ SYS@ELEVEN>SYS@ELEVEN>SYS@ELEVEN>DESC CJUSTICE.DEPT
+ Name                       Null?    Type
+ -------------------------- -------- --------------------- 
+ DEPTNO                     NOT NULL NUMBER(2)
+ DNAME                               VARCHAR2(14)
+ LOC                                 VARCHAR2(13)
+
+SYS@ELEVEN>ALTER TABLE CJUSTICE.DEPT ADD ( SOME_COLUMN NUMBER );
+
+Table altered.
+
+Elapsed: 00:00:00.87
+
+SYS@ELEVEN>DESC CJUSTICE.DEPT
+
+ Name                       Null?    Type
+ -------------------------- -------- ---------------
+ DEPTNO                     NOT NULL NUMBER(2)
+ DNAME                               VARCHAR2(14)
+ LOC                                 VARCHAR2(13)
+ SOME_COLUMN                         NUMBER
+
+SYS@ELEVEN>ALTER DATABASE CLOSE;
+
+Database altered.
+
+Elapsed: 00:00:05.57
+
+SYS@ELEVEN>FLASHBACK DATABASE TO RESTORE POINT my_restore_point;
+
+Flashback complete.
+
+Elapsed: 00:00:05.84
+
+SYS@ELEVEN>SHUTDOWN;
+
+ORA-01109: database not open
+
+Database dismounted.
+
+ORACLE instance shut down.
+
+SYS@ELEVEN>STARTUP;
+ORACLE instance started.
+Total System Global Area  535662592 bytes
+Fixed Size                  1334380 bytes
+Variable Size             327156628 bytes
+Database Buffers          201326592 bytes
+Redo Buffers                5844992 bytes
+Database mounted.
+
+ORA-01589: must use RESETLOGS or NORESETLOGS option for database open
+
+SYS@ELEVEN>ALTER DATABASE OPEN RESETLOGS;
+
+Database altered.
+
+Elapsed: 00:00:25.18
+SYS@ELEVEN>DESC CJUSTICE.DEPT
+
+ Name                     Null?    Type
+ ------------------------ -------- -------------------------------
+ DEPTNO                   NOT NULL NUMBER(2)
+ DNAME                             VARCHAR2(14)
+ LOC                               VARCHAR2(13)

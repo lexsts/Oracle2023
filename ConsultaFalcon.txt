@@ -1,0 +1,35 @@
+col username format a12
+col wait_class format a20
+col object_name format a20
+col program format a30
+col sample_time format a30
+col event format a20
+
+select inst_id,
+       sample_time,
+       session_id,
+       wait_time,
+       time_waited,
+       event,
+       b.username,
+       sql_id,
+       session_state,
+       blocking_session,
+       wait_class,
+       c.object_name,
+     CURRENT_OBJ#,
+     CURRENT_ROW#,
+       current_file#,
+       current_block#,
+       program,
+       session_type
+  from gv$active_session_history a, dba_users b, dba_objects c
+where a.USER_ID = b.user_id(+)
+   and a.CURRENT_OBJ# = c.object_id(+)
+   and b.username = 'PR05FCNEQTU'
+   and sample_time between
+       to_date('19-05-2018 12:39:00', 'DD-MM-YYYY HH24:MI:SS') and
+       to_date('19-05-2018 12:40:00', 'DD-MM-YYYY HH24:MI:SS')
+--    and time_waited > 10000 
+--    and   session_id = 1476
+order by sample_time;

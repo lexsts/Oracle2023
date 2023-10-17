@@ -1,0 +1,250 @@
+create table cetip.tmp_cart AS
+  SELECT
+              ent.num_id_entidade,
+              pj.cod_nacional_pj cod_cnpj,
+              ent.nome_entidade nom_cartorio,
+              ent.nom_simplificado_entidade cod_cartorio
+
+         FROM
+              cetip.entidade ent,
+              cetip.pessoa_juridica pj,
+              cetip.natureza_economica ne
+        WHERE
+              ent.num_id_entidade = pj.num_id_entidade AND
+              pj.num_id_natureza_economica = ne.num_id_natureza_economica AND
+              ent.num_id_tipo_entidade = 5 AND
+              ne.num_id_setor_economico = 222 AND
+              pj.ind_excluido = 'N' AND
+              ent.ind_excluido = 'N' AND
+              ne.ind_excluido = 'N'
+CREATE INDEX cetip.IDX01_tmp_cart ON cetip.tmp_cart(num_id_entidade)  
+
+create table cetip.tmp_dados_municipio_cred AS
+  SELECT uf_cred.num_id_uf,
+              uf_cred.sig_uf,
+              municipio_cred.num_id_municipio,
+              municipio_cred.nom_municipio
+        FROM   cetip.municipio municipio_cred, cetip.uf uf_cred
+        WHERE municipio_cred.num_id_uf = uf_cred.num_id_uf
+        AND   municipio_cred.ind_excluido = 'N'
+                               
+CREATE INDEX cetip.IDX01_tmp_dados_municipio_cred ON cetip.tmp_dados_municipio_cred(num_id_municipio)
+
+	
+create table cetip.tmp_iflig AS
+                               SELECT
+               ifliginterno.num_if,
+               nat_predom_imov.des_nat_predominante_imovel,
+               ifliginterno.num_prazo_medio,
+               tp_pred_cred_imov.des_tp_predominancia_cred_imob
+        FROM
+               cetip.if_lig ifliginterno,
+               cetip.tipo_predominancia_cred_imob tp_pred_cred_imov,
+               cetip.nat_predominante_imovel nat_predom_imov
+
+        WHERE ifliginterno.num_id_tp_predomin_cred_imob = tp_pred_cred_imov.num_id_tp_predomin_cred_imob
+          AND ifliginterno.num_id_nat_predominante_imovel = nat_predom_imov.num_id_nat_predominante_imovel 
+		  
+CREATE INDEX cetip.IDX01_tmp_iflig ON cetip.tmp_iflig(num_if)
+
+CREATE INDEX IDX01_t_tmp_resgate_t21 ON cetip.t_tmp_resgate_t21(num_if)
+
+CREATE TABLE CETIP.TESTE_TMP_IMOB_DRESUMO_EMISSOR TABLESPACE TS_CETIP_DATA_100M NOLOGGING AS
+  SELECT /*+ FULL(iff) ENABLE_PARALLEL_DDL PARALLEL(32) */
+
+      --  === Malote/Conta Participante =================================================
+
+        cpartic.sig_uf AS sig_uf,
+        cpartic.nom_malote AS nom_malote,
+        TRANSLATE (cpartic.cod_conta_destinatario, '0123456789 .-', '0123456789') AS cod_conta_destinatario,
+        cpartic.conta_destinatario AS conta_destinatario,
+        cpartic.nom_conta_destinatario AS nom_conta_destinatario,
+        TRANSLATE (cpartic.cod_conta_registrador, '0123456789 .-', '0123456789') AS cod_conta_registrador,
+        cpartic.conta_registrador AS conta_registrador,
+        cpartic.nom_conta_registrador AS nom_conta_registrador,
+        TRANSLATE (cpartic.cod_conta_ag_pagto, '0123456789 .-', '0123456789') AS cod_conta_ag_pagto,
+        cpartic.conta_ag_pagto AS conta_ag_pagto,
+        cpartic.nom_conta_ag_pagto AS nom_conta_ag_pagto,
+        cpartic.nom_emissor AS emissor,
+        cpartic.tipo_destinatario AS tipo_destinatario,
+
+        ag_fiduciario.cod_conta_participante AS cod_conta_agente_fiduciario,
+        ag_fiduciario.conta_escriturador as conta_escriturador,
+
+      --  === Instrumento Financeiro =====================================================
+
+        iff.cod_tipo_if AS cod_tipo_if,
+        iff.num_id_objeto_servico AS num_id_objeto_servico,
+
+        (select certificado.cod_if
+         from  cetip.t_tmp_imob_if certificado
+         where certificado.num_if = iff.num_if_pertence) AS cod_if_certificado,
+
+        iff.num_if_pertence AS num_if_pertence,
+        iff.cod_if AS cod_if,
+        iff.num_if AS num_if,
+        iff.dat_emissao AS dat_emissao,
+        iff.dat_vencimento AS dat_vencimento,
+        iff.dat_registro AS dat_registro,
+        iff.dat_alteracao_caracteristicas AS dat_alteracao_caracteristicas,
+        iff.val_nominal_atual AS val_unit_emissao_atual,
+        iff.dat_ultima_correcao AS dat_val_unit_emissao_atual,
+        iff.val_pu_curva AS val_pu_curva,
+        iff.dat_pu_curva AS dat_preco_unit_juros,
+        iff.val_juros_acumulados AS preco_unit_juros,
+        iff.val_nominal_emissao AS val_unit_emissao,
+        iff.ind_emissao_publica AS ind_emissao_publica,
+        iff.num_serie_emissao AS num_serie_emissao,
+        iff.val_juros_pago_dia AS val_juros_pago_dia,
+        (NVL (iff.val_juros_pago_dia, 0) + NVL (iff.val_pu_curva, 0)) AS val_pu_curva_com_juros_dia,
+        ((NVL (iff.val_juros_pago_dia, 0) + NVL (iff.val_pu_curva, 0)) * NVL (tit.qtd_depositada, 0)) AS total_pu_curva_com_juros,
+
+      --  === Titulo =====================================================================
+
+        tit.qtd_depositada AS qtd_depositada,
+        tit.qtd_emitida AS qtd_emitida,
+        COALESCE (tit.qtd_resgatada, 0) AS qtd_resgatada,
+        tit.qtd_retirada AS qtd_retirada,
+        NVL (iff.val_pu_curva, 0) * NVL (tit.qtd_depositada, 0) AS val_total,
+        tit.ind_possui_opcoes AS ind_possui_opcoes,
+        tit.num_controle_interno_partic AS num_controle_interno_partic,
+       tit.nom_tipo_regime_titulo AS nom_tipo_regime_titulo,
+        tit.num_id_tipo_regime_titulo AS num_id_tipo_regime_titulo,
+        DECODE (tit.ind_eventos_cursados_cetip,  'S', 'SIM',  'N', 'NÃO') AS ind_eventos_cursados_cetip,
+
+      --  === Condic?o IF =================================================================
+
+        cif.rent_indexador_taxa_flu AS rent_indexador_taxa_flu,
+        cif.percentual_taxa_flutuante AS percentual_taxa_flutuante,
+        cif.taxa_juros_spread AS taxa_juros_spread,
+        cif.criterio_calculo_juros AS criterio_calculo_juros,
+        cif.tipo_indice_outros AS tipo_indice_outros,
+        cif.des_indice_outros AS des_indice_outros,
+        cif.cod_deslocamento AS cod_deslocamento,
+
+      -- === Resgate ======================================================================
+
+        (CASE
+          WHEN iff.cod_tipo_if = 'CRI'
+          THEN
+            resg.ind_resgate_antecipado
+          ELSE
+            resg.codigo_condicao_resgate
+        END) AS cod_condicao_resgate,
+
+      --  === Credito ======================================================================
+
+        cred.dat_inicio_rentabilidade AS data_inicio_rentabilidade,
+        dados_municipio_cred.sig_uf AS uf_cred,
+        dados_municipio_cred.nom_municipio AS municip_cred,
+
+      --  === Historico PU Curva ===========================================================
+
+        hpu.val_pu_curva_anterior * tit.qtd_depositada AS val_total_anterior,
+        hpu.val_pu_curva_anterior AS val_pu_curva_anterior,
+
+      --  === Lote =========================================================================
+
+        lote.nome_lote AS nome_lote,
+        lote.cod_programa_emissao AS cod_programa_emissao,
+
+      -- === Evento =========================================================================
+
+          (CASE
+                  WHEN ((CASE
+                              WHEN cetip.eh_dia_util (iff.dat_vencimento) = 0
+                                  THEN
+                                      iff.dat_vencimento
+                                  ELSE
+                                      cetip.add_dias_uteis (iff.dat_vencimento, 1)
+                          END) = cetip.add_dias_uteis (cetip.get_data_batch(0, 724), 1)) AND iff.val_juros_pago_dia IS NOT NULL
+                  THEN
+                      iff.val_juros_pago_dia
+                  ELSE
+                      iff.val_juros_acumulados
+
+          END) AS val_juros_ultimo,
+
+
+          (CASE
+                  WHEN ((CASE
+                              WHEN cetip.eh_dia_util (iff.dat_vencimento) = 0
+                                  THEN
+                                      iff.dat_vencimento
+                                  ELSE
+                                      cetip.add_dias_uteis (iff.dat_vencimento, 1)
+                          END) = cetip.add_dias_uteis (cetip.get_data_batch(0, 724), 1)) and iff.val_juros_pago_dia is not null
+                  THEN
+                      (tit.qtd_depositada * (iff.val_juros_pago_dia + iff.val_nominal_atual))
+                  ELSE
+                      (tit.qtd_depositada * iff.val_pu_curva)
+
+          END) AS val_total_atualizado,
+
+
+      --  === IF CRI =======================================================================
+
+        DECODE (if_cri.num_artigo_lei_12431, '1', 'Artigo 1º', '2', 'Artigo 2º', if_cri.num_artigo_lei_12431) AS num_artigo_lei_12431,
+        if_cri.ind_destinacao_recurso AS ind_destinacao_recurso,
+
+      -- === IF LIG ========================================================================
+
+        iflig.num_prazo_medio AS prazo_medio,
+        iflig.des_tp_predominancia_cred_imob AS tp_predomin_cred,
+        iflig.des_nat_predominante_imovel AS nat_predomin_imob,
+
+      --  === Outros ========================================================================
+
+        fp.des_forma_pagamento AS forma_pagamento,
+        cetip.f_tira_ponto_e_virgula (imovel.num_matricula) AS matricula,
+        cetip.f_tira_ponto_e_virgula (cart.nom_cartorio) AS cartorio,
+        cgi.num_id_cesta_garantias AS num_id_cesta_garantias,
+        vg.des_veiculo_garantidor AS des_veiculo_garantidor,
+        tp_negociador.nom_tipo_negociador AS nom_tipo_negociador,
+        tp_distribuicao.num_tipo_distribuicao_publica,
+
+      --  === Campos Nulos ==================================================================
+
+        cast(null as varchar2(1)) AS ind_registrador,
+        cast(null as varchar2(1)) AS ind_conversao_extincao,
+        cast(null as varchar2(1)) AS qtd_limite_conversibilidade,
+        cast(null as varchar2(1)) AS des_criterios_conversao,
+        cast(null as varchar2(1)) AS des_enquadramento_regulatorio,
+        cast(null as varchar2(1)) AS des_forma_integralizacao,
+        cast(null as varchar2(1)) AS val_percentual_enquadramento,
+        cast(null as varchar2(1)) AS des_contrato,
+        cast(null as varchar2(1)) AS nom_foro_eleicao,
+        cast(null as varchar2(1)) AS nom_instrumento_captacao,
+        cast(null as varchar2(1)) AS nom_abrev_indicador_financeiro,
+        cast(null as varchar2(1)) AS conta_custodiante_nota,
+        cast(null as varchar2(1)) AS ind_recompra_emissor,
+        cast(null as varchar2(1)) AS ind_tipo_autorizacao_bc
+
+FROM
+
+      cetip.t_tmp_imob_if iff 
+      join cetip.t_tmp_imob_titulo tit on iff.num_if  = tit.num_if
+      join cetip.t_tmp_imob_conta_participante cpartic on iff.num_if  = cpartic.num_if
+                  left join cetip.veiculo_garantidor vg on tit.num_id_veiculo_garantidor = vg.num_id_veiculo_garantidor
+                  left join cetip.tipo_negociador_secundario tp_negociador on tit.num_id_tipo_negociador_secund = tp_negociador.num_id_tipo_negociador_secund
+                  left join cetip.tmp_cart cart on tit.num_id_entidade_cartorio = cart.num_id_entidade
+                  left join cetip.t_tmp_imob_hist_pu_curva hpu on iff.num_if  = hpu.num_if
+      left join cetip.t_tmp_imob_credito cred on iff.num_if  = cred.num_if
+                  left join cetip.tmp_dados_municipio_cred dados_municipio_cred on cred.num_id_municipio = dados_municipio_cred.num_id_municipio      
+      left join cetip.t_tmp_imob_conta_ag_fiduc_emis ag_fiduciario on iff.num_if  = ag_fiduciario.num_if
+      left join cetip.t_tmp_imob_condicao_if_emissao cif on iff.num_if  = cif.num_if
+      left join cetip.t_tmp_imob_lote_emissao lote on iff.num_if  = lote.num_if
+      left join cetip.t_tmp_resgate_t21 resg on iff.num_if  = resg.num_if
+      left join cetip.forma_pagamento fp on iff.num_id_forma_pagamento = fp.num_id_forma_pagamento
+      left join cetip.imovel imovel on iff.num_if  = imovel.num_if
+      left join cetip.cesta_garantias_if cgi on iff.num_if  = cgi.num_if
+      left join cetip.if_cri if_cri on iff.num_if  = if_cri.num_if
+      left join cetip.tipo_distribuicao_publica  tp_distribuicao on iff.num_tipo_distribuicao_publica = tp_distribuicao.num_tipo_distribuicao_publica
+      left join cetip.tmp_iflig iflig on iff.num_if  = iflig.num_if
+WHERE iff.dat_vencimento > cetip.get_datahoje;
+
+
+DROP TABLE cetip.tmp_cart 
+DROP TABLE cetip.tmp_dados_municipio_cred
+DROP TABLE cetip.tmp_iflig
+DROP TABLE CETIP.TESTE_TMP_IMOB_DRESUMO_EMISSOR

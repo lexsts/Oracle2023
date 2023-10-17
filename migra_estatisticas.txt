@@ -1,0 +1,92 @@
+##Tabelas contidas na query do midsd
+
+RMS_OWNER.TBRM_OPER,
+MIDAS.TBMD_CLI,
+MIDAS.TBMD_OPER,
+MIDAS.TBMD_CR,
+MIDAS.TBMD_EMP,
+MIDAS.TBMD_FIL,
+MIDAS.TBMD_OBN,
+MIDAS.TBMD_INX,
+MIDAS.TBMD_PER,
+MIDAS.TBMD_MOE,
+MIDAS.TBMD_LOC_NEG,
+MIDAS.TBMD_RES
+MIDAS.TBMD_PAR
+
+
+##Criando tabelas para armazenar o backup de estatísticas, no midsu
+
+exec dbms_stats.create_stat_table(ownname => 'MIDAS', stattab => 'STAT_TBMD_CLI', tblspace => 'TBS1M01I');
+exec dbms_stats.create_stat_table(ownname => 'MIDAS', stattab => 'STAT_TBMD_OPER', tblspace => 'TBS1M01I');
+exec dbms_stats.create_stat_table(ownname => 'MIDAS', stattab => 'STAT_TBMD_CR', tblspace => 'TBS1M01I');
+exec dbms_stats.create_stat_table(ownname => 'MIDAS', stattab => 'STAT_TBMD_EMP', tblspace => 'TBS1M01I');
+exec dbms_stats.create_stat_table(ownname => 'MIDAS', stattab => 'STAT_TBMD_FIL', tblspace => 'TBS1M01I');
+exec dbms_stats.create_stat_table(ownname => 'MIDAS', stattab => 'STAT_TBMD_OBN', tblspace => 'TBS1M01I');
+exec dbms_stats.create_stat_table(ownname => 'MIDAS', stattab => 'STAT_TBMD_INX', tblspace => 'TBS1M01I');
+exec dbms_stats.create_stat_table(ownname => 'MIDAS', stattab => 'STAT_TBMD_PER', tblspace => 'TBS1M01I');
+exec dbms_stats.create_stat_table(ownname => 'MIDAS', stattab => 'STAT_TBMD_MOE', tblspace => 'TBS1M01I');
+exec dbms_stats.create_stat_table(ownname => 'MIDAS', stattab => 'STAT_TBMD_LOC_NEG', tblspace => 'TBS1M01I');
+exec dbms_stats.create_stat_table(ownname => 'MIDAS', stattab => 'STAT_TBMD_PAR', tblspace => 'TBS1M01I');
+exec dbms_stats.create_stat_table(ownname => 'RMS_OWNER', stattab => 'STAT_TBRM_OPER', tblspace => 'TBS1M01I');
+
+
+
+##Export das estatísticas das tabelas da query para as tabelas de backup, no midsu
+
+exec dbms_stats.export_table_stats ( ownname => 'MIDAS' , stattab => 'STAT_TBMD_CLI', tabname => 'TBMD_CLI', statid => 'TBMD_CLI_23102013') ;
+exec dbms_stats.export_table_stats ( ownname => 'MIDAS' , stattab => 'STAT_TBMD_OPER', tabname => 'TBMD_OPER', statid => 'TBMD_OPER_23102013') ;
+exec dbms_stats.export_table_stats ( ownname => 'MIDAS' , stattab => 'STAT_TBMD_CR', tabname => 'TBMD_CR', statid => 'TBMD_CR_23102013') ;
+exec dbms_stats.export_table_stats ( ownname => 'MIDAS' , stattab => 'STAT_TBMD_EMP', tabname => 'TBMD_EMP', statid => 'TBMD_EMP_23102013') ;
+exec dbms_stats.export_table_stats ( ownname => 'MIDAS' , stattab => 'STAT_TBMD_FIL', tabname => 'TBMD_FIL', statid => 'TBMD_FIL_23102013') ;
+exec dbms_stats.export_table_stats ( ownname => 'MIDAS' , stattab => 'STAT_TBMD_OBN', tabname => 'TBMD_OBN', statid => 'TBMD_OBN_23102013') ;
+exec dbms_stats.export_table_stats ( ownname => 'MIDAS' , stattab => 'STAT_TBMD_INX', tabname => 'TBMD_INX', statid => 'TBMD_INX_23102013') ;
+exec dbms_stats.export_table_stats ( ownname => 'MIDAS' , stattab => 'STAT_TBMD_PER', tabname => 'TBMD_PER', statid => 'TBMD_PER_23102013') ;
+exec dbms_stats.export_table_stats ( ownname => 'MIDAS' , stattab => 'STAT_TBMD_MOE', tabname => 'TBMD_MOE', statid => 'TBMD_MOE_23102013') ;
+exec dbms_stats.export_table_stats ( ownname => 'MIDAS' , stattab => 'STAT_TBMD_LOC_NEG', tabname => 'TBMD_LOC_NEG', statid => 'TBMD_LOC_NEG_23102013') ;
+exec dbms_stats.export_table_stats ( ownname => 'MIDAS' , stattab => 'STAT_TBMD_PAR', tabname => 'TBMD_PAR', statid => 'TBMD_PAR_23102013') ;
+exec dbms_stats.export_table_stats ( ownname => 'RMS_OWNER' , stattab => 'STAT_TBRM_OPER', tabname => 'TBRM_OPER', statid => 'TBRM_OPER_23102013') ;
+
+
+## export das tabelas via exp
+exp system parfile=parfile_stat.txt
+
+#conteúdo do parfile
+file=estatisticas.dmp 
+log=estatisticas.log 
+tables=MIDAS.STAT_TBMD_CLI,
+MIDAS.STAT_TBMD_OPER,
+MIDAS.STAT_TBMD_CR,
+MIDAS.STAT_TBMD_EMP,
+MIDAS.STAT_TBMD_FIL,
+MIDAS.STAT_TBMD_OBN,
+MIDAS.STAT_TBMD_INX,
+MIDAS.STAT_TBMD_PER,
+MIDAS.STAT_TBMD_MOE,
+MIDAS.STAT_TBMD_LOC_NEG,
+MIDAS.STAT_TBMD_PAR,
+RMS_OWNER.STAT_TBRM_OPER
+
+
+##transferência para o servidor do midsd
+scp estatisticas.dmp oracle@saoshdbd0173.br.db.com:/home/oracle
+
+
+##import no servidor do midsd
+imp system file=estatisticas.dmp log=estatisticas.log full
+
+
+##import das estatísticas no midsu
+exec dbms_stats.import_table_stats ( ownname => 'MIDAS' , stattab => 'STAT_TBMD_CLI', tabname => 'TBMD_CLI', statid => 'TBMD_CLI_23102013') ;
+exec dbms_stats.import_table_stats ( ownname => 'MIDAS' , stattab => 'STAT_TBMD_OPER', tabname => 'TBMD_OPER', statid => 'TBMD_OPER_23102013') ;
+exec dbms_stats.import_table_stats ( ownname => 'MIDAS' , stattab => 'STAT_TBMD_CR', tabname => 'TBMD_CR', statid => 'TBMD_CR_23102013') ;
+exec dbms_stats.import_table_stats ( ownname => 'MIDAS' , stattab => 'STAT_TBMD_EMP', tabname => 'TBMD_EMP', statid => 'TBMD_EMP_23102013') ;
+exec dbms_stats.import_table_stats ( ownname => 'MIDAS' , stattab => 'STAT_TBMD_FIL', tabname => 'TBMD_FIL', statid => 'TBMD_FIL_23102013') ;
+exec dbms_stats.import_table_stats ( ownname => 'MIDAS' , stattab => 'STAT_TBMD_OBN', tabname => 'TBMD_OBN', statid => 'TBMD_OBN_23102013') ;
+exec dbms_stats.import_table_stats ( ownname => 'MIDAS' , stattab => 'STAT_TBMD_INX', tabname => 'TBMD_INX', statid => 'TBMD_INX_23102013') ;
+exec dbms_stats.import_table_stats ( ownname => 'MIDAS' , stattab => 'STAT_TBMD_PER', tabname => 'TBMD_PER', statid => 'TBMD_PER_23102013') ;
+exec dbms_stats.import_table_stats ( ownname => 'MIDAS' , stattab => 'STAT_TBMD_MOE', tabname => 'TBMD_MOE', statid => 'TBMD_MOE_23102013') ;
+exec dbms_stats.import_table_stats ( ownname => 'MIDAS' , stattab => 'STAT_TBMD_LOC_NEG', tabname => 'TBMD_LOC_NEG', statid => 'TBMD_LOC_NEG_23102013') ;
+exec dbms_stats.import_table_stats ( ownname => 'MIDAS' , stattab => 'STAT_TBMD_PAR', tabname => 'TBMD_PAR', statid => 'TBMD_PAR_23102013') ;
+exec dbms_stats.import_table_stats ( ownname => 'RMS_OWNER' , stattab => 'STAT_TBRM_OPER', tabname => 'TBRM_OPER', statid => 'TBRM_OPER_23102013') ;
+

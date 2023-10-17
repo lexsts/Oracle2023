@@ -1,0 +1,156 @@
+Oracle Database 11g Release 11.2.0.2.0
+ORACLE DATABASE Patch for Bug# 11716621 for Solaris86-64 Platforms
+
+(RAC Rolling Installable and Online Installable Patch)
+
+(DG Rolling Installable)
+
+Released: Wed Oct 26 00:28:59 2011
+
+This document describes how you can install the ORACLE DATABASE combo patch for bug#  11716621 on your Oracle Database 11g Release 11.2.0.2.0.
+
+A combo patch is a patch that can be applied either in offline mode or in online mode. For information about offline and online modes of patching, see My Oracle Support note 761111.1 available at:
+https://support.oracle.com/CSP/main/article?cmd=show&type=NOT&id=761111.1
+ 
+(1) Prerequisites
+------------------
+Before you install or deinstall the patch, ensure that you meet the following requirements:
+Note: In case of an Oracle RAC environment, meet these prerequisites on each of the nodes.
+
+1.	Ensure that the Oracle Database on which you are installing the patch or from which you are rolling back the patch is Oracle Database 11g Release (11.2.0.2.0).
+
+2.	Oracle recommends you to use the latest version of OPatch. 
+	If you do not have the latest version, then follow the instructions outlined in the My Oracle Support note 224346.1 available at:
+	https://support.oracle.com/CSP/main/article?cmd=show&type=NOT&id=224346.1 
+
+3.	Ensure that you set the ORACLE_HOME environment variable to the Oracle home of the Oracle Database.
+
+4.	Ensure that you set the PATH environment variable to include the location of the unzip executable, and the <ORACLE_HOME>/bin and the <ORACLE_HOME>/OPatch directories present in the Oracle home of the Oracle Database.
+ 
+5.	Ensure that you verify the Oracle Inventory because OPatch accesses it to install the patches. To verify the inventory, run the following command. If the command displays some errors, then contact Oracle Support and resolve the issue.
+	$ opatch lsinventory 
+
+6.	(Only for Offline Patching) Ensure that you shut down all the services running from the Oracle home.
+
+7.	(Only for Online Patching) Ensure that all the services in the Oracle home are up and running.
+
+8.	(Only for Online Patching) Ensure that you maintain adequate memory on your system to apply this online patch. To calculate the amount of memory required for this online patch, use the following formula:
+	Memory Consumed = (Number of Oracle Processes + 1) X (Size of Patched .pch File) 
+
+Note:
+-	For UNIX, the number of Oracle processes is determined by checking the parameter "processes" in the database by querying v$parameter. For Microsoft Windows, the number of Oracle processes is always zero (0).
+-	The .pch file is available under <bug_number>/files/hpatch/ directory.
+
+(2) Installation
+-----------------
+This section describes the following modes you can use to install the combo patch. Use the one that best suits your requirement. 
+-	Installing in Offline Mode
+-	Installing in Online Mode
+
+(2.1) Installing in Offline Mode
+-----------------------------------
+To  install the patch in offline mode, follow these steps:
+Note: In case of an Oracle RAC environment, perform these steps on each of the nodes.
+
+1.	Maintain a location for storing the contents of the patch ZIP file. In the rest of the document, this location (absolute path) is referred to as <PATCH_TOP_DIR>.
+
+2.	Extract the contents of the patch ZIP file to the location you created in Step (1). To do so, run the following command:
+	$ unzip -d <PATCH_TOP_DIR> p11716621_112020_Solaris86-64.zip
+
+3.	Navigate to the <PATCH_TOP_DIR>/11716621 directory:
+	$ cd <PATCH_TOP_DIR>/11716621
+
+4.	Install the patch by running the following command:
+	$ opatch apply
+
+	Note: 
+	When OPatch starts, it validates the patch and ensures that there are no conflicts with the software already installed in the ORACLE_HOME of the Oracle Database. OPatch categorizes conflicts 	
+	into the following types: 
+	-	Conflicts with a patch already applied to the ORACLE_HOME - In this case, stop the patch installation and contact Oracle Support Services.
+	-	Conflicts with a patch already applied to the ORACLE_HOME that is a subset of the patch you are trying to apply  - In this case, continue with the patch installation because the new patch 
+		contains all the fixes from the existing patch in the ORACLE_HOME. The subset patch will automatically be rolled back prior to the installation of the new patch.
+
+5.	Start the services from the Oracle home.
+
+
+(2.2) Installing in Online Mode
+-----------------------------------
+To  install the patch in online mode, follow these steps:
+Note: In case of an Oracle RAC environment, perform these steps on each of the nodes.
+
+1.	Maintain a location for storing the contents of the patch ZIP file. In the rest of the document, this location (absolute path) is referred to as <PATCH_TOP_DIR>.
+
+2.	Extract the contents of the patch ZIP file to the location you created in Step (1). To do so, run the following command:
+	$ unzip -d <PATCH_TOP_DIR> p11716621_112020_Solaris86-64.zip
+
+3.	Navigate to the <PATCH_TOP_DIR>/11716621 directory:
+	$ cd <PATCH_TOP_DIR>/11716621
+
+4.	Install the patch by running the following command:
+	-	For Non-RAC Environments (Standalone Databases):  
+		$ opatch apply online -connectString <SID>:<USERNAME>:<PASSWORD>: 
+	-	For RAC Environments: 
+		$ opatch apply online -connectString <SID_Node1>:<Username_Node1>:<Password_Node1>:<Node1_Name>,<SID_Node2>:<Username_Node2>:<Password_Node2>:<Node2_Name>,<SID_NodeN>:<Username_NodeN>:<Password_NodeN>:<NodeN_Name> <PATCH_TOP_DIR>/11716621
+
+	Note:
+	-	Run the previous command on the first node of the Oracle RAC system, and specify details of each node separated by a comma. In the command, NodeN refers to the different nodes of the 
+		Oracle RAC system. Once the patch is applied on the first node, OPatch automatically moves over and patches the next node you have specified in the comamnd. 
+	-	When OPatch starts, it validates the patch and ensures that there are no conflicts with the software already installed in the ORACLE_HOME of the Oracle Database. OPatch categorizes conflicts 
+		into the following types: 
+	-	Conflicts with a patch already applied to the ORACLE_HOME that is a subset of the patch you are trying to apply  - In this case, continue with the patch installation because the new patch 
+		contains all the fixes from the existing patch in the ORACLE_HOME. The subset patch will automatically be rolled back prior to the installation of the new patch.
+	-	Conflicts with a patch already applied to the ORACLE_HOME - In this case, stop the patch installation and contact Oracle Support Services.
+
+5.	Start the services from the Oracle home.
+
+
+(3) Deinstallation
+--------------------
+This section describes the following modes you can use to deinstall the combo patch. Use the one that best suits your requirement. 
+-	Deinstalling in Offline Mode
+-	Deinstalling in Online Mode
+
+(3.1) Deinstalling in Offline Mode
+-------------------------------------
+To deinstall the patch in offline mode, follow these steps:
+Note: In case of an Oracle RAC environment, perform these steps on each of the nodes.
+
+1.	Navigate to the <PATCH_TOP_DIR>/11716621 directory:
+	$ cd <PATCH_TOP_DIR>/11716621
+
+2.	Deinstall the patch by running the following command:
+	$ opatch rollback -id 11716621
+
+3.	Start the services from the Oracle home.
+
+
+(3.2) Deinstalling in Online Mode
+--------------------------------------
+To deinstall the patch in online mode, follow these steps:
+Note: In case of an Oracle RAC environment, perform these steps on each of the nodes.
+
+1.	Navigate to the <PATCH_TOP_DIR>/11716621 directory:
+	$ cd <PATCH_TOP_DIR>/11716621
+
+2.	Deinstall the patch by running the following command:
+	-	For Non-RAC Environments (Standalone Databases):  
+		$ opatch rollback -id 11716621 -connectString <SID>:<USERNAME>:<PASSWORD>:
+	-	For RAC Environments: 
+		$ opatch rollback -id 11716621 -connectString <SID_Node1>:<Username_Node1>:<Password_Node1>:<Node1_Name>,<SID_Node2>:<Username_Node2>:<Password_Node2>:<Node2_Name>,<SID_NodeN>:<Username_NodeN>:<Password_NodeN>:<NodeN_Name> <PATCH_TOP_DIR>/11716621
+
+	Note:
+	Run the previous command on the first node of the Oracle RAC system, and specify details of each node separated by a comma. In the command, NODEn refers to the different nodes of the 
+	Oracle RAC system. Once the patch is rolled back from the first node, OPatch automatically moves over and rolls back the patch from the next node you have specified in the comamnd. 
+
+3.	Start the services from the Oracle home.
+
+
+(4) Bugs Fixed by This Patch
+---------------------------------
+The following are the bugs fixed by this patch:
+  11716621: ORA-600 KXHFADDCHUNK1 FOR HASH JOIN QUERY WITH MANUAL MEMORY AND SHARED SERVER
+
+
+--------------------------------------------------------------------------
+Copyright 2011, Oracle and/or its affiliates. All rights reserved.  
+--------------------------------------------------------------------------

@@ -1,0 +1,10 @@
+-- Usuários nominais. Relatório de usuários que estão com a conta expirada (expira a cada 90 dias)
+set line 300 pages 300
+SELECT i.instance_name, u.username, u.profile, u.account_status, u.expiry_date
+FROM dba_users u, v$instance i
+WHERE u.profile = 'DEFAULT' 
+  and u.account_status like 'EXPIRED%' 
+  and u.expiry_date < TRUNC(SYSDATE -90) 
+  and u.username not in ('XS$NULL')
+ORDER BY 2;
+exit;

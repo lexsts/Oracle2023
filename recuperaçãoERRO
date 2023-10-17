@@ -1,0 +1,20 @@
+--CHAVE DUPLICADA
+DECLARE 
+  ERROR_LOG NUMBER :=0;
+BEGIN
+        LOOP
+            BEGIN
+                ERROR_LOG:=0;
+                INSERT INTO TBL_ERROR_TESTE VALUES(1,'ALEX','MAUA');
+            EXCEPTION
+                WHEN Dup_Val_On_Index THEN NULL;   -- ignore exception and go to next loop iteration
+                COMMIT;
+                ERROR_LOG:=1;
+                dbms_lock.sleep(10); 
+            END;
+             IF ERROR_LOG=0 THEN
+                COMMIT;
+                EXIT;
+             END IF;
+        END LOOP;
+END;

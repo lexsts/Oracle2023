@@ -1,0 +1,5 @@
+select RESOURCE_NAME || ',' || LIMIT from dba_profiles where profile = (select PROFILE from dba_users where username = '&&user_name');
+SELECT 'GRANT ' || GRANTED_ROLE || ' TO ' || GRANTEE || ';' FROM DBA_ROLE_PRIVS WHERE GRANTEE='&&user_name';
+SELECT 'GRANT ' || PRIVILEGE || ' TO ' || GRANTEE || ';' FROM dba_sys_privs WHERE GRANTEE='&&user_name';
+SELECT 'ALTER USER ' || USERNAME || ' QUOTA UNLIMITED ON ' || TABLESPACE_NAME || ';' FROM DBA_TS_QUOTAS WHERE USERNAME = '&&user_name' AND MAX_BYTES=-1;
+SELECT 'GRANT ' || PRIVILEGE || ' ON ' || OWNER || '.' || TABLE_NAME || ' TO ' || GRANTEE|| ';' FROM dba_tab_privs WHERE GRANTEE='&&user_name';

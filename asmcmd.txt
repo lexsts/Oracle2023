@@ -1,0 +1,36 @@
+[root@orclp ~]# /etc/init.d/oracleasm querydisk -d vol1
+Disk "VOL1" is a valid ASM disk on device [8, 81]
+
+[root@orclp ~]# ls -l /dev | grep 8,| grep 81
+brw-rw----   1 root disk     8,      81 Oct 29 20:42 sdf1
+
+ASMCMD> lsdg
+State    Type    Rebal  Sector  Logical_Sector  Block       AU  Total_MB  Free_MB  Req_mir_free_MB  Usable_file_MB  Offline_disks  Voting_files  Name
+MOUNTED  EXTERN  N         512             512   4096  4194304    102400     4832                0            4832              0             N  DATA_CORP/
+MOUNTED  EXTERN  N         512             512   4096  4194304    153600    19084                0           19084              0             N  DATA_GDA/
+MOUNTED  EXTERN  N         512             512   4096  1048576     10240     9941                0            9941              0             Y  OCRVDG/
+
+
+ASMCMD> mount all
+ORA-15032: not all alterations performed
+ORA-15040: diskgroup is incomplete
+ORA-15042: ASM disk "1" is missing from group number "7"
+ORA-15040: diskgroup is incomplete
+ORA-15042: ASM disk "3" is missing from group number "2"
+ORA-15042: ASM disk "1" is missing from group number "2"
+ORA-15017: diskgroup "REPO" cannot be mounted
+ORA-15040: diskgroup is incomplete
+ORA-15017: diskgroup "ORACLE" cannot be mounted
+ORA-15040: diskgroup is incomplete
+ORA-15017: diskgroup "MGMT" cannot be mounted
+ORA-15040: diskgroup is incomplete
+ORA-15017: diskgroup "OCRVDG" cannot be mounted
+ORA-15013: diskgroup "OCRVDG" is already mounted
+ORA-15017: diskgroup "DATA_GDA" cannot be mounted
+ORA-15013: diskgroup "DATA_GDA" is already mounted
+ORA-15017: diskgroup "DATA_CORP" cannot be mounted
+ORA-15013: diskgroup "DATA_CORP" is already mounted (DBD ERROR: OCIStmtExecute)
+
+
+##Problema resolvido com uma oracleasm scandisks
+https://support.oracle.com/epmos/faces/DocumentDisplay?_afrLoop=155727236039431&parent=EXTERNAL_SEARCH&sourceId=PROBLEM&id=2153949.1&_afrWindowMode=0&_adf.ctrl-state=1bkx45fbem_53
