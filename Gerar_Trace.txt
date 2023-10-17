@@ -1,0 +1,58 @@
+﻿##Trace de Logon
+CREATE OR REPLACE TRIGGER SGE.TRACE_LOGON
+ AFTER
+ LOGON
+ ON SGE.SCHEMA
+DECLARE
+  vTeste varchar2(20);
+BEGIN
+  EXECUTE IMMEDIATE 'ALTER SESSION SET SQL_TRACE=TRUE';
+  EXECUTE IMMEDIATE 'alter session set timed_statistics=true';
+  EXECUTE IMMEDIATE 'alter session set max_dump_file_size=unlimited';
+  EXECUTE IMMEDIATE 'alter session set tracefile_identifier=TRC_SGE';
+  EXECUTE IMMEDIATE 'alter session set events ''10046 trace name context forever, level 12''';
+  select 'Usuario SGE' into vTeste from dual;
+EXCEPTION
+   WHEN OTHERS
+   THEN
+      raise_application_error (-20001, 'Problem: ' || SQLERRM);
+END;
+/
+
+##Trace de Instância
+ALTER SYSTEM SET EVENTS '10046 trace name context forever, level 12';
+ALTER SYSTEM SET EVENTS '10046 trace name context off';
+
+ALTER SYSTEM SET trace_enabled = TRUE;
+ALTER SYSTEM SET trace_enabled = FALSE;
+
+##Trace de usuário:
+ALTER TRIGGER NFE.TRACE_LOGON ENABLE;
+ALTER TRIGGER NFE.TRACE_LOGON DISABLE;
+
+##Trace na sessão:
+SELECT 'EXEC DBMS_SYSTEM.SET_SQL_TRACE_IN_SESSION(SID=>1225, SERIAL#=>30743, SQL_TRACE=>TRUE);',
+       'EXEC DBMS_SYSTEM.SET_SQL_TRACE_IN_SESSION(SID=>' || A.SID || ', SERIAL#=>' || A.SERIAL# || ', SQL_TRACE=>FALSE);'
+  FROM V$SESSION A
+ WHERE A.USERNAME = <teste>
+ORDER BY A.LOGON_TIME 
+
+##Consulta o trace
+  select a.sid,b.spid from v$session a, v$process b where a.paddr=b.addr and a.sid = 1225;
+SQL> select a.sid,b.spid from v$session a, v$process b where a.paddr=b.addr and a.sid = 1225;
+ 
+       SID SPID
+---------- ------------------------
+      1225 9222
+
+SELECT tracefile as TRACE_FILE FROM   v$process   pro, v$session   se
+WHERE  	se.sid   	= 	1225
+AND 	se.serial# 	= 	11225
+AND 	pro.addr 	= 	se.paddr;
+
+
+##Gera TKProf
+  tkprof  cdmg_ora_6088.trc trace.txt sys=no explain=tech4b/dba01dba  --Ignora comandos do SYS
+  tkprof RPCORBRA1_ora_23054_TRC_PR01LUMO.trc RPCORBRA1_ora_23054_TRC_PR01LUMO.txt sys=no record=RPCORBRA1_ora_23054_TRC_PR01LUMO_CMDS.txt --Salva os comandos em um arquivo a parte
+  tkprof RPCORBRA1_ora_23054_TRC_PR01LUMO.trc RPCORBRA1_ora_23054_TRC_PR01LUMO.txt sys=no INSERT=Inserts.tx --Salva as estatisticas dos comandos em um arquivo a parte
+  tkprof SINACOR_ora_111.trc output_gera_xml.txt EXPLAIN=corrwin/john8*doe@sinacor SYS=NO sort=prsela,execpu,exeela,fchcpu,fchela

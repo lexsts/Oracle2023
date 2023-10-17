@@ -1,0 +1,59 @@
+spool c:\temp\20140930_Deutsche_Explain_Plan.log
+
+Set pages 999
+explain plan for 
+
+Select d.nm_resu_bolsa, a.cd_natope, c.ds_mercado, 
+       decode(a.tp_vcoter,null,to_char(a.dt_opcoes,'MM/YY'),to_char(a.tp_vcoter,'9999')), 
+       a.nm_nomres, a.cd_especif, sum(a.qt_qtdesp), a.vl_negocio, null, null ,sum(abs(a.vl_total)), 
+       a.cd_negocio, a.cd_bolsamov, a.in_liquida, a.cd_codisi, 
+       decode(a.nr_negocio,0,a.vl_total,0), decode(a.nr_negocio,0,0,1), sum(nvl(a.vl_corresp,0)), sum(nvl(a.vl_iss_corresp,0)), 
+       a.tp_mercado, replace(a.in_negocio,'N',null) , 
+       sum(a.vl_liqoper),   sum(a.vl_totneg),    sum(a.vl_emolum_bv), sum(a.vl_emolum_cb), 
+       sum(a.vl_taxreg_bv), sum(a.vl_taxreg_cb), sum(a.vl_taxana),    sum(a.vl_corret), 
+       sum(a.vl_corresp),   sum(a.vl_valdes),    sum(a.vl_irretido),  sum(a.vl_iroper), 
+       sum(a.vl_iss)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
+ from corrwin.v_tbodetnota01 a, corrwin.tbomercado c, corrwin.tgebolsa d 
+where a.cd_cliente_fin  = :1          
+  and a.dt_negocio      = :2      
+  and c.cd_almerc       = a.tp_mercado 
+  and a.cd_bolfat       = :3         
+  and d.cd_bolsa        = a.cd_bolsamov 
+  and d.cd_sistema      = 'BOL' 
+  and a.tp_negocio      = :4          
+  and a.dt_datmov       = :5
+group by decode(sign(instr(a.in_negocio,'A',1)),1,0,1), a.in_negocio, a.nr_negocio, 
+         d.nm_resu_bolsa, a.cd_natope, c.ds_mercado, a.tp_mercado, a.dt_opcoes, 
+         a.nm_nomres, a.cd_especif,a.cd_negocio, a.cd_codisi, 
+         a.tp_vcoter, a.cd_bolsamov, a.in_liquida, decode(a.nr_negocio,0,a.vl_total,0), 
+         decode(a.nr_negocio,0,0,1), a.vl_negocio 
+order by  decode(sign(instr(a.in_negocio,'A',1)),1,0,1),d.nm_resu_bolsa, c.ds_mercado, a.cd_natope, a.nm_nomres, a.cd_especif , a.nr_negocio;
+
+select * from table(dbms_xplan.display);	
+
+spool off	 
+
+
+
+
+
+
+EXPLAIN PLAN FOR SELECT DATA_SESS, DECODE(COD_ANUL_NEG, '1', 'INCLUSAO', '2', 'CANCELAMENTO', COD_ANUL_NEG), COUNT(*) FROM HMBDBA.HMBNEG WHERE DATA_SESS BETWEEN '01-NOV-2014' AND '30-JAN-2015' AND COD_BOLS = 'A' GROUP BY DATA_SESS, COD_ANUL_NEG;
+EXPLAIN PLAN FOR SELECT * FROM HMBDBA.HMBNEG WHERE DATA_SESS BETWEEN '03-NOV-2014' AND '07-NOV-2014' AND COD_BOLS = 'A';
+EXPLAIN PLAN FOR SELECT * FROM HMBDBA.HMBNEG WHERE DATA_SESS BETWEEN '10-NOV-2014' AND '14-NOV-2014' AND COD_BOLS = 'A';
+EXPLAIN PLAN FOR SELECT * FROM HMBDBA.HMBNEG WHERE DATA_SESS BETWEEN '17-NOV-2014' AND '21-NOV-2014' AND COD_BOLS = 'A';
+EXPLAIN PLAN FOR SELECT * FROM HMBDBA.HMBNEG WHERE DATA_SESS BETWEEN '24-NOV-2014' AND '28-NOV-2014' AND COD_BOLS = 'A';
+EXPLAIN PLAN FOR SELECT * FROM HMBDBA.HMBNEG WHERE DATA_SESS BETWEEN '01-DEC-2014' AND '05-DEC-2014' AND COD_BOLS = 'A';
+EXPLAIN PLAN FOR SELECT * FROM HMBDBA.HMBNEG WHERE DATA_SESS BETWEEN '08-DEC-2014' AND '12-DEC-2014' AND COD_BOLS = 'A';
+EXPLAIN PLAN FOR SELECT * FROM HMBDBA.HMBNEG WHERE DATA_SESS BETWEEN '15-DEC-2014' AND '19-DEC-2014' AND COD_BOLS = 'A';
+EXPLAIN PLAN FOR SELECT * FROM HMBDBA.HMBNEG WHERE DATA_SESS BETWEEN '22-DEC-2014' AND '26-DEC-2014' AND COD_BOLS = 'A';
+EXPLAIN PLAN FOR SELECT * FROM HMBDBA.HMBNEG WHERE DATA_SESS BETWEEN '29-DEC-2014' AND '02-JAN-2015' AND COD_BOLS = 'A';
+EXPLAIN PLAN FOR SELECT * FROM HMBDBA.HMBNEG WHERE DATA_SESS BETWEEN '05-JAN-2015' AND '09-JAN-2015' AND COD_BOLS = 'A';
+EXPLAIN PLAN FOR SELECT * FROM HMBDBA.HMBNEG WHERE DATA_SESS BETWEEN '12-JAN-2015' AND '16-JAN-2015' AND COD_BOLS = 'A';
+EXPLAIN PLAN FOR SELECT * FROM HMBDBA.HMBNEG WHERE DATA_SESS BETWEEN '19-JAN-2015' AND '23-JAN-2015' AND COD_BOLS = 'A';
+EXPLAIN PLAN FOR SELECT * FROM HMBDBA.HMBNEG WHERE DATA_SESS BETWEEN '26-JAN-2015' AND '30-JAN-2015' AND COD_BOLS = 'A';
+
+SELECT OWNER,TABLE_NAME,TABLESPACE_NAME,NUM_ROWS FROM DBA_TABLES WHERE TABLE_NAME='HMBNEG' AND OWNER='HMBDBA'
+SELECT OWNER,SEGMENT_NAME,TABLESPACE_NAME,BYTES/1024/1024 FROM DBA_SEGMENTS WHERE SEGMENT_NAME='HMBNEG' AND OWNER='HMBDBA'
+
+SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY('PLAN_TABLE'));

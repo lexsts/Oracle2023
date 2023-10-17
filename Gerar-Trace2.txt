@@ -1,0 +1,68 @@
+CREATE TABLE login_audit_info
+(
+logon_time DATE, 
+username VARCHAR2(100), 
+tracefile VARCHAR2(100)
+);
+
+
+
+CREATE OR REPLACE TRIGGER audit_login_trigger
+AFTER LOGON ON DATABASE
+DECLARE
+l_user        dba_users.username%TYPE   := USER;
+l_sql         VARCHAR2 (500);
+l_tracefile   VARCHAR2 (100);
+l_time        DATE;
+BEGIN
+l_sql :=
+'alter session set events '
+|| CHR (39)
+|| '10046 trace name context forever, level 12'
+|| CHR (39);
+l_time := SYSDATE;
+ 
+IF (l_user = 'MSUTIC')
+THEN
+EXECUTE IMMEDIATE l_sql;
+ 
+SELECT    pa.VALUE
+|| '/'
+|| LOWER (SYS_CONTEXT ('userenv', 'instance_name'))
+|| '_ora_'
+|| p.spid
+|| '.trc'
+INTO l_tracefile
+FROM v$session s, v$process p, v$parameter pa
+WHERE pa.NAME = 'user_dump_dest'
+AND s.paddr = p.addr
+AND s.audsid = SYS_CONTEXT ('USERENV', 'SESSIONID');
+ 
+INSERT INTO login_audit_info
+(logon_time, username, tracefile
+) 
+VALUES (l_time, l_user, l_tracefile
+);
+ 
+COMMIT;
+END IF;
+END;
+/
+ 
+
+
+*********************************************************************************************
+
+gerar trace após logon
+
+CREATE OR REPLACE TRIGGER ON_LOGON_USER
+AFTER LOGON ON DATABASE
+WHEN ( USER = 'TECH4B' )
+BEGIN
+
+execute immediate 'alter session set events ''10046 trace name context forever, level 12''';
+EXCEPTION
+WHEN OTHERS THEN
+NULL;
+END;
+/
