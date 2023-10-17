@@ -1,0 +1,1 @@
+alter database datafile '+DATA02/cetipsp2/datafile/ts_diff_data.293.1098745609' resize 64000m;

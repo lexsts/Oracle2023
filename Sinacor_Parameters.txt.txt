@@ -1,0 +1,12 @@
+alter system set shared_pool_reserved_size=350m scope=both;
+alter system set java_pool_size=300m scope=both;
+alter system set open_cursors = 5000 scope=both;
+alter system set db_file_multiblock_read_count = 32 scope=both;
+alter system set sga_max_size=22G scope=both;
+
+=> Anteriores
+sga_max_size=24G
+db_file_multiblock_read_count = 16
+open_cursors = 2048
+shared_pool_reserved_size=258369126
+java_pool_size=192M

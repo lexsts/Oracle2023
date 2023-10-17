@@ -1,0 +1,4 @@
+cd /tmp/sqlt/run
+sqlplus /nolog
+conn alexsantos
+START sqltxtract.sql 64dd2cfszw750 met#sx33

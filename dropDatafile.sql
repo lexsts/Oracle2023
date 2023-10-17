@@ -1,0 +1,1 @@
+alter database datafile '+UNDO/cetipsp2/datafile/undotbs.260.943985031' offline drop;

@@ -1,0 +1,10 @@
+ls -1 /asm* | while read x;
+ do
+   dsk=`/opt/grid/product/11.2.0/grid_1/bin/kfed read $x | grep kfdhdb.dskname | awk '{print $2}'`;
+   str=`/opt/grid/product/11.2.0/grid_1/bin/kfed read $x | grep kfdhdb.mntstmp.hi`
+  dat=$dat"/"`echo $str | awk '{print $7}' | cut -d= -f2 | awk '{printf ("%d\n", strtonum($1))}'`;
+   dat=`echo $str | awk '{print $6}' | cut -d= -f2 | awk '{printf ("%d\n", strtonum($1))}'`;
+   dat=$dat"/"`echo $str | awk '{print $7}' | cut -d= -f2 | awk '{printf ("%d\n", strtonum($1))}'`;
+   dat=$dat"/"`echo $str | awk '{print $8}' | cut -d= -f2 | awk '{printf ("%d\n", strtonum($1))}'`;
+   echo $x" -> "$dsk" -> "$dat;
+ done

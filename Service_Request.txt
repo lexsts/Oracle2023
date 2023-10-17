@@ -1,0 +1,18 @@
+1) Please provide AWR reports covering 30-60 minutes during good and bad performance(ie when there is waits on VCs)
+
+2) Does the issue reproduce in your test database
+
+3) Confirm ANY changes since it ran OK, eg
+
+a) change in data volumes
+b) change in data values
+c) number of concurrent users
+d) application code change
+e) application workload change
+f) Oracle patch/patchset
+g) OS patch
+h) etc etc
+
+4) Provide ASH reports during the problem
+
+5) Upload RDA report

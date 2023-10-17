@@ -1,0 +1,75 @@
+Executar o shrink dos objetos
+
+
+Shrink dos Lobs:
+===========================
+
+select 'ALTER TABLE '||s.owner||'.'||l.TABLE_NAME|| ' MODIFY LOB ' ||l.column_name||' (SHRINK SPACE CASCADE);'
+  from dba_segments s, dba_lobs l
+where s.SEGMENT_NAME = l.SEGMENT_NAME
+and  table_name in ('T741','T747','T930','T968','T1834','T1869')
+order by l.table_name;
+
+Shrink das Tabelas:
+===========================
+
+alter table ARADMIN.T741 SHRINK SPACE COMPACT;
+alter table ARADMIN.T747 SHRINK SPACE COMPACT;
+alter table ARADMIN.T930 SHRINK SPACE COMPACT;
+alter table ARADMIN.T968 SHRINK SPACE COMPACT;
+alter table ARADMIN.T1834 SHRINK SPACE COMPACT;
+alter table ARADMIN.T1869 SHRINK SPACE COMPACT;
+
+alter table ARADMIN.T741 SHRINK SPACE;
+alter table ARADMIN.T747 SHRINK SPACE;
+alter table ARADMIN.T930 SHRINK SPACE;
+alter table ARADMIN.T968 SHRINK SPACE;
+alter table ARADMIN.T1834 SHRINK SPACE;
+alter table ARADMIN.T1869 SHRINK SPACE;
+
+Shrink dos Índices:
+===========================
+
+select 'ALTER INDEX '||owner||'.'||index_name||' REBUILD ONLINE NOLOGGING; '
+  from dba_indexes
+where table_name in ('T741','T747','T930','T968','T1834','T1869');
+
+
+
+
+
+
+
+
+
+
+select 'alter database '||a.name||' datafile '''||b.file_name||'''' ||
+' resize '||greatest(trunc(bytes_full/.7)
+,(bytes_total-bytes_free))||chr(10)||
+'--tablespace was '||trunc(bytes_full*100/bytes_total)||
+'% full now '||
+trunc(bytes_full*100/greatest(trunc(bytes_full/.7)
+,(bytes_total-bytes_free)))||'%'
+from v$database a
+,dba_data_files b
+,(Select tablespace_name,sum(bytes) bytes_full
+From dba_extents
+Group by tablespace_name) c
+,(Select tablespace_name,sum(bytes) bytes_total
+From dba_data_files
+Group by tablespace_name) d
+,(Select a.tablespace_name,a.file_id,b.bytes bytes_free
+From (select tablespace_name,file_id
+,max(block_id) max_data_block_id
+from dba_extents
+group by tablespace_name,file_id) a
+,dba_free_space b
+where a.tablespace_name = b.tablespace_name
+and a.file_id = b.file_id
+and b.block_id > a.max_data_block_id) e
+Where b.tablespace_name = c.tablespace_name
+And b.tablespace_name = d.tablespace_name
+And bytes_full/bytes_total < .7
+And b.tablespace_name = e.tablespace_name
+And b.file_id = e.file_id
+;

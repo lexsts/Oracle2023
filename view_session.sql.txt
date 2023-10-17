@@ -1,0 +1,11 @@
+--Visualiza eventos nos processos
+select vs.sid, vp.spid, vp.program PROCESSNAME, vp.spid THREADID
+from   v$session vs, v$process vp , dba_datapump_sessions dp
+where  vp.addr = vs.paddr(+) and
+vs.saddr = dp.saddr;
+
+
+--Visualiza os Eventos do momento
+select sid, event, p1, p2, p3, seconds_in_wait
+from v$session_wait
+where sid in (xxxxxxxx);

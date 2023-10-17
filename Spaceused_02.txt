@@ -1,0 +1,7 @@
+name                                                      rows                 reserved      data          index_size    unused
+--------------------------------------------------------- -------------------- ------------- ------------- ------------- -------------
+hca.TDWHCA_EVENTO_DINHEIRO_CUSTODIA_CREDITADO             357086614            93315560 KB   21206776 KB   67518128 KB   4590656 KB
+hca.TDWHCA_EVENTO_DINHEIRO_CUSTODIA_VIGENTE               431545084            80911408 KB   6722688 KB    73772392 KB   416328 KB
+hca.TDWHCA_EVENTO_DINHEIRO_CUSTODIA_ANALITICO_CREDITADO   35668378             6086024 KB    889064 KB     5162008 KB    34952 KB
+hca.TDWHCA_EVENTO_DINHEIRO_CUSTODIA_ANALITICO_VIGENTE     432706208            62040736 KB   11275544 KB   50470152 KB   295040 KB
+

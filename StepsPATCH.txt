@@ -1,0 +1,79 @@
+1-Setar variaveis de ambiente
+. .profile
+
+2-Colocar o patche em um diretorio temporario
+mkdir /home/oracle/software/patches
+
+3-Descompactar o OPATCH nos respectivos diretórios (ORACLE_HOME,GRID_HOME)
+unzip p6880880_112000_Linux-x86-64.zip -d $OH 
+unzip p6880880_112000_Linux-x86-64.zip -d $CH
+
+4-Verificar a versão mais atual do OPATCH
+$CH/OPatch/opatch version
+$OH/OPatch/opatch version
+
+5-Verificar último patch aplicado
+. .profile
+$ORACLE_HOME/OPatch/opatch lsinventory
+asm1
+$ORACLE_HOME/OPatch/opatch lsinventory
+
+6-Descompactar os patches:
+unzip p12397410_112010_Linux-x86-64.zip && unzip p9067282_112010_Linux-x86-64.zip
+
+7-Entar no diretório descompactado e aplicar o patch (Binários do Oracle Database)
+cd /home/oracle/software/patches/9067282
+. ~/.profile
+srvctl stop instance -d RPFCNBRA -i RPFCNBRA1
+$ORACLE_HOME/OPatch/opatch apply –local
+y
+<ENTER>
+Y
+y
+srvctl start instance -d RPFCNBRA -i RPFCNBRA1
+$ORACLE_HOME/OPatch/opatch lsinventory
+
+
+8-Entar no diretório descompactado e aplicar o patch (Binários do Oracle ASM)
+cd /home/oracle/software/patches/12397410
+
+. ~/.profile
+srvctl stop instance -d RPFCNBRA -i RPFCNBRA1
+
+--como root:
+. /home/oracle/.profile
+asm1
+$ORACLE_HOME/crs/install/rootcrs.pl -unlock
+
+--como oracle
+--grid home
+asm1
+echo $ORACLE_ HOME
+<ORACLE_ HOME deve ser o grid home>
+$ORACLE_HOME/OPatch/opatch apply -oh $ORACLE_HOME -local /home/oracle/software/patches/12397410
+y
+<ENTER>
+Y
+y
+--oracle home
+. ~/.profile
+echo $ORACLE_HOME
+<ORACLE_ HOME deve ser o rdbms home>
+$ORACLE_HOME/OPatch/opatch apply -local
+y
+<ENTER>
+Y
+y
+
+--como root:
+. /home/oracle/.profile
+asm1
+$ORACLE_HOME/crs/install/rootcrs.pl -patch
+crsctl stat res –t
+
+--validar patches
+. .profile
+srvctl start instance -d RPFCNBRA -i RPFCNBRA1
+$ORACLE_HOME/OPatch/opatch lsinventory -oh $OH
+$ORACLE_HOME/OPatch/opatch lsinventory -oh $CH
+

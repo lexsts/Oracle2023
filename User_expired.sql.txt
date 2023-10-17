@@ -1,0 +1,3 @@
+alter user dbamon profile default;
+alter user dbamon identified by "pass#2012";
+alter user dbamon profile addm_profile;

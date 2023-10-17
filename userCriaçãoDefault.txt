@@ -1,0 +1,85 @@
+                Servidor: orapos002p-scan.intraservice.corp
+                Banco: OTCAPPRI
+                Criação de tablespace.
+                Criação de schema  para comportar sistema novo sistema e definir tablespace padrão.
+                Criação de usuário para a aplicação acessar o banco.
+                Necessário criar roles e schema de usuário.
+               Não divulgar senha de OWNER
+               Atualizar planilhas de controle.
+
+@@TBS1
+@@ASM1
+@@TBS3
+SELECT * FROM V$TABLESPACE WHERE NAME IN ('CALYPSO_PRD','INTEGRACAO_PRD','PORTAL_PRD','MAP_PRD')
+
+CREATE TABLESPACE CALYPSO_PRD DATAFILE '+DATADG(datafile)' SIZE 5G;
+CREATE TABLESPACE INTEGRACAO_PRD DATAFILE '+DATADG(datafile)' SIZE 5G;
+CREATE TABLESPACE PORTAL_PRD DATAFILE '+DATADG(datafile)' SIZE 5G;
+CREATE TABLESPACE MAP_PRD DATAFILE '+DATADG(datafile)' SIZE 5G;
+
+
+              --- OWNER Produção
+create user PR01CLYO identified by e80378d2 DEFAULT TABLESPACE CALYPSO_PRD QUOTA UNLIMITED ON CALYPSO_PRD; 
+create user PR01INTO identified by fa821ea1 DEFAULT TABLESPACE INTEGRACAO_PRD QUOTA UNLIMITED ON INTEGRACAO_PRD; 
+create user PR01WPTO identified by afc234c2 DEFAULT TABLESPACE PORTAL_PRD QUOTA UNLIMITED ON PORTAL_PRD; 
+create user PR01MAPO identified by bcf8de36 DEFAULT TABLESPACE MAP_PRD QUOTA UNLIMITED ON MAP_PRD; 
+
+              --- USER DEV Produção
+create user PR01CLYU identified by eb1857be DEFAULT TABLESPACE USERS;
+create user PR01INTU identified by fabafd0c DEFAULT TABLESPACE USERS;
+create user PR01WPTU identified by af4c1d8c DEFAULT TABLESPACE USERS;
+create user PR01MAPU identified by c2087591 DEFAULT TABLESPACE USERS;
+
+--- GRANTS 
+grant create session       to PR01CLYO;                                                                                                                   
+grant resource                 to PR01CLYO;                                                                                                                      
+grant create view            to PR01CLYO;                                                                                                                      
+grant create session       to PR01CLYU;                                                                                                                   
+
+grant create session       to PR01INTO;                                                                                                                   
+grant resource                 to PR01INTO;                                                                                                                      
+grant create view            to PR01INTO;                                                                                                                      
+grant create session       to PR01INTU;                                                                                                                   
+
+grant create session       to PR01WPTO;                                                                                                                   
+grant resource                 to PR01WPTO;                                                                                                                      
+grant create view            to PR01WPTO;                                                                                                                      
+grant create session       to PR01WPTU;                                                                                                                   
+
+grant create session       to PR01MAPO;                                                                                                                   
+grant resource                 to PR01MAPO;                                                                                                                      
+grant create view            to PR01MAPO;                                                                                                                      
+grant create session       to PR01MAPU;                                                                                                                   
+
+
+--roles
+CREATE ROLE PRCLYEX;
+CREATE ROLE PRCLYRW;
+CREATE ROLE PRCLYRO;
+
+CREATE ROLE PRINTEX;
+CREATE ROLE PRINTRW;
+CREATE ROLE PRINTRO;
+
+CREATE ROLE PRWPTEX;
+CREATE ROLE PRWPTRW;
+CREATE ROLE PRWPTRO;
+
+CREATE ROLE PRMAPEX;
+CREATE ROLE PRMAPRW;
+CREATE ROLE PRMAPRO;
+
+--Grant para o U
+ grant PRCLYEX, PRCLYRW, PRCLYRO to PR01CLYU;
+ grant PRINTEX,PRINTRW,PRINTRO to PR01INTU;
+ grant PRWPTEX,PRWPTRW,PRWPTRO to PR01WPTU;
+ grant PRMAPEX,PRMAPRW,PRMAPRO to PR01MAPU;
+
+
+--- SYNONYMS
+ALTER SESSION SET CURRENT_SCHEMA=SYS
+set serveroutput on
+exec DS_CS_GR_SCHEMAS('PR01CLYO', 'PR01CLYU' , 'PRCLYEX', 'PRCLYRW', 'PRCLYRO');
+exec DS_CS_GR_SCHEMAS('PR01INTO', 'PR01INTU' , 'PRINTEX', 'PRINTRW', 'PRINTRO');
+exec DS_CS_GR_SCHEMAS('PR01WPTO', 'PR01WPTU' , 'PRWPTEX', 'PRWPTRW', 'PRWPTRO');
+exec DS_CS_GR_SCHEMAS('PR01MAPO', 'PR01MAPU' , 'PRMAPEX', 'PRMAPRW', 'PRMAPRO');

@@ -1,0 +1,1 @@
+exec dbms_session.close_database_link('DBMISPRD.BRZ.SA.DEUBA.COM');
