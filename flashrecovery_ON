@@ -1,0 +1,30 @@
+--Para configurar a área de recuperação rápida do banco, defina o tamanho dessa área:
+alter system set DB_RECOVERY_FILE_DEST_SIZE = 1G;
+
+--Aponte para o diretório que será a área de recuperação:
+alter system set DB_RECOVERY_FILE_DEST = 'C:\APP\ORACLE\RECOVERY' SCOPE = BOTH;
+
+--Para ativar o Flashback Recovery no banco de dados, execute o comando:
+alter database flashback on;
+
+--Para criar um ponto de restauração no banco de dados, execute:
+create restore point RESTORE_DB_01 guarantee flashback database;
+
+--Para ver os pontos de restauração, execute:
+select time, restore_point_time, name from v$restore_point;
+
+
+
+
+###############PARA VOLTAR UM PONTO DE RESTAURAÇÃO
+--retire o banco do ar:
+shutdown immediate;
+
+--Suba o banco como mount, para ativar o dicionário de dados:
+startup mount;
+
+--Para retornar ao ponto de restauração, execute:
+flashback database to restore point RESTORE_DB_01;
+
+--Para subir o banco novamente, utilize a cláusula RESETLOGS para resetar os logs:
+alter database open resetlogs;
