@@ -1,0 +1,31 @@
+--Verifique os parâmetros de gerenciamento de memória, executando o comando:
+SHOW PARAMETERS TARGET;
+
+--Para ver o máximo de PGA que o sistema suporta, execute:
+SELECT NAME, VALUE FROM V$PGASTAT;
+
+--Mostre o parâmetro maximum PGA allocated:
+SELECT NAME, VALUE FROM V$PGASTAT WHERE NAME = 'maximum PGA allocated';
+
+--Para alterar o parâmetro MEMORY_MAX_TARGET, execute:
+ALTER SYSTEM SET MEMORY_MAX_TARGET = 1800M SCOPE = SPFILE;
+
+--Mude agora o valor do parâmetro MEMORY_TARGET para 1500M:
+ALTER SYSTEM SET MEMORY_TARGET = 1500M SCOPE = SPFILE;
+
+--Zere os parâmetros PGA_AGGREGATE_TARGET e SGA_TARGET:
+ALTER SYSTEM PGA_AGGREGATE_TARGET = 0 SCOPE = SPFILE;
+ALTER SYSTEM SGA_TARGET = 0 SCOPE = SPFILE;
+
+--Derrube a instância do banco de dados:
+SHUTDONW;
+
+--Inicie o banco de dados:
+STARTUP;
+
+--Mostre os parâmetros de gerenciamento de memória:
+SHOW PARAMETERS TARGET;
+
+
+--Para verificar a estatística da memória, execute:
+SELECT memory_size, memory_size_factor, estd_db_time FROM v$memory_target_advice;
