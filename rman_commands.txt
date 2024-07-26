@@ -1,0 +1,4 @@
+rman target /
+list failure;
+advise failure;
+repair failure;
