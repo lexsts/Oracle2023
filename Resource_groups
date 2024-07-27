@@ -1,0 +1,38 @@
+A ideia dos próximos passos é criar seguinte plano de recursos:
+
+Prioridade 1: 100% SYS_GROUP;
+Prioridade 2: 100% INTERACTIVE_GROUP;
+Prioridade 3: 50% DSS_CRITICAL_GROUP e 50% BATCH_GROUP;
+Prioridade 4: 100% OTHERS_GROUPS.
+
+3) Verifique se os grupos de consumidores que serão usados nesse plano de recursos existem. Para isso, execute:
+SELECT * FROM DBA_RSRC_CONSUMER_GROUPS;
+
+4) Crie o plano de recursos diário. A primeira coisa a ser feita é criar uma área de gerenciamento de recurso pendente. Para isso, será utilizada uma série de comandos de biblioteca, chamada de DBMS_RESOURCES:
+EXEC DBMS_RESOURCE_MANAGER.CREATE_PENDING_AREA;
+
+5) Crie o plano de recursos na área pendente:
+EXEC DBMS_RESOURCE_MANAGER.CREATE_PLAN (PLAN=>'DAY', COMMENT=>'Plano diurno para horas de trabalho');
+
+6) Dê prioridade 1, de 100% de CPU, para o grupo de consumidores SYS_GROUP:
+EXEC DBMS_RESOURCE_MANAGER.CREATE_PLAN_DIRECTIVE (PLAN=>'DAY', GROUP_OR_SUBPLAN=>'SYS_GROUP', MGMT_P1=>100, COMMENT=>'Prioridade 1 para administradores do sistema');
+
+7) Vá para a segunda prioridade:
+EXEC DBMS_RESOURCE_MANAGER.CREATE_PLAN_DIRECTIVE (PLAN=>'DAY', GROUP_OR_SUBPLAN=>'INTERACTIVE_GROUP', MGMT_P2=>100, COMMENT=>'Prioridade 2 para operadores de Televendas');
+
+8) Passe para a terceira prioridade. Nela, divida o comando, dando 50% de CPU para DSS_CRITICAL_GROUP e 50% para BATCH_GROUP:
+EXEC DBMS_RESOURCE_MANAGER.CREATE_PLAN_DIRECTIVE (PLAN=>'DAY', GROUP_OR_SUBPLAN=>'DSS_CRITICAL_GROUP', MGMT_P3=>50, COMMENT=>'Prioridade 3 para relatórios');
+EXEC DBMS_RESOURCE_MANAGER.CREATE_PLAN_DIRECTIVE (PLAN=>'DAY', GROUP_OR_SUBPLAN=>'BATCH_GROUP', MGMT_P3=>50, COMMENT=>'Prioridade 3 para processos em Batch');
+
+9) Finalmente, a última prioridade:
+EXEC DBMS_RESOURCE_MANAGER.CREATE_PLAN_DIRECTIVE (PLAN=>'DAY', GROUP_OR_SUBPLAN=>'OTHER_GROUPS', MGMT_P4=>100, COMMENT=>'Prioridade 4 para outros usuários');
+
+10) Valide e submeta a criação da prioridade:
+EXEC DBMS_RESOURCE_MANAGER.VALIDATE_PENDING_AREA;
+EXEC DBMS_RESOURCE_MANAGER.SUBMIT_PENDING_AREA;
+
+11) Verifique se o plano foi criado:
+SELECT * FROM DBA_RSRC_PLAN_DIRECTIVES WHERE PLAN = 'DAY';
+
+12) Ative este plano de recursos para ser executado pelo banco de dados:
+ALTER SYSTEM SET RESOURCE_MANAGER_PLAN = 'DAY';
