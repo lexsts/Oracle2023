@@ -1,0 +1,85 @@
+/* To see if the same task name exists */
+
+	SQL> select OWNER,TASK_ID,TASK_NAME,ADVISOR_NAME,CREATED,LAST_MODIFIED,LAST_EXECUTION, 
+	EXECUTION_TYPE,STATUS,STATUS_MESSAGE,RECOMMENDATION_COUNT from dba_advisor_tasks 
+	where ADVISOR_NAME in ('SQL Access Advisor','SQL Tuning Advisor'); 
+/*Creating a Access Advisor task */
+
+	  DECLARE 
+	    task_id NUMBER; 
+	    task_name VARCHAR2(30); 
+	  BEGIN 
+	    task_name := 'ACCESSFORTEST01'; 
+	  DBMS_ADVISOR.CREATE_TASK(DBMS_ADVISOR.SQLACCESS_ADVISOR, task_id, task_name); 
+	  END; 
+	  / 
+/* Create a Sql Tuning Set */
+
+	exec DBMS_SQLTUNE.CREATE_SQLSET(sqlset_name => 'SQLTUNINGSET_TEST01_01'); 
+/* to check details of the sts created */
+
+	SQL>select * from dba_sqlset WHERE name='SQLTUNINGSET_TEST01_01'; 
+/* For checking any previous workload */
+
+	SQL> select * from dba_advisor_sqla_wk_map; 
+/* Create a STS workload repository from AWR */
+
+	DECLARE 
+	  cur sys_refcursor; 
+	BEGIN 
+	open cur for 
+	   select value(p) from table(dbms_sqltune.select_workload_repository( 
+	      begin_snap => 12496,  
+	      end_snap => 12513,    
+	      basic_filter => 'parsing_schema_name not in 
+			 (''DBSNMP'',''SYS'',''ORACLE_OCM'')', 
+	      ranking_measure1 => 'elapsed_time', 
+	      result_limit => 250)) p; 
+	    dbms_sqltune.load_sqlset('SQLTUNINGSET_TEST01_01',cur);
+	  close cur; 
+	END; 
+	/ 
+We can either load the STS to Access Advisor or SQL Tuning Advisor
+
+Loading the STS to Sql Tuning Advisor
+
+/* Load the STS to SQL Tuning Advisor */
+
+	DECLARE 
+	l_sql_tune_task_id  VARCHAR2(100); 
+	BEGIN 
+	l_sql_tune_task_id := DBMS_SQLTUNE.create_tuning_task ( 
+	sqlset_name => 'SQLTUNINGSET_TEST01_01',  
+	scope       => DBMS_SQLTUNE.scope_comprehensive, 
+	time_limit  => 30000,
+	task_name   => 'sqlset_tuning_task_TEST01_1',
+	description => 'Tuning task for an SQL tuning set.'); 
+	DBMS_OUTPUT.put_line('l_sql_tune_task_id: ' || l_sql_tune_task_id); 
+	END; 
+	/ 
+/* Execute the tuning task */
+
+	
+	EXEC DBMS_SQLTUNE.execute_tuning_task(task_name => 'sqlset_tuning_task_TEST01_1'); 
+/* To see recommendations from SQL Tuning Advisor */
+
+	SET LONGCHUNKSIZE 1000000; 
+	SET LONG 100000; 
+	SET PAGESIZE 1000 
+	SET LINESIZE 200 
+	SELECT DBMS_SQLTUNE.report_tuning_task('sqlset_tuning_task_TEST01_1') as recommendations from dual
+Link STS Workload to SQL Access Advisor Task
+
+	exec dbms_advisor.ADD_STS_REF ('ACCESSFORTEST01','SYS','SQLTUNINGSET_TEST01_01'); 
+/* Execute Task */
+
+	exec dbms_advisor.execute_task('ACCESSFORTEST01'); 
+	END; 
+	/
+
+
+24) Agora, crie um DIRECTORY no Oracle, chamado TUNE_SCRIPTS_SAIDAS e associe-o à pasta C:\Tempo:
+CREATE DIRECTORY TUNE_SCRIPTS_SAIDAS AS 'C:\TEMPO';
+
+25) Para escrever o resultado da análise nesse diretório, execute:
+EXECUTE DBMS_ADVISOR.CREATE_FILE(DBMS_ADVISOR.GET_TASK_SCRIPT('TASK1'),'TUNE_SCRIPTS_SAIDAS','TUNE.SQL');
